@@ -4,17 +4,31 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiohttp import web
 from supabase import create_client
 import os
 from datetime import datetime
-from dotenv import load_dotenv
 
-load_dotenv()
+# Configuración para Railway - LAS VARIABLES SE OBTIENEN DE ENTORNO
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+ADMIN_ID = os.getenv("ADMIN_ID")
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
+# Configuración del webhook
+WEBHOOK_PATH = f"/webhook/{BOT_TOKEN}"
+WEBHOOK_URL = os.getenv("RAILWAY_STATIC_URL", "") + WEBHOOK_PATH
+
+# Configuración del servidor
+HOST = "0.0.0.0"
+PORT = int(os.getenv("PORT", 3000))
+
+# Inicialización de bot y servicios
+bot = Bot(token=BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def menu():
     kb = [
@@ -60,7 +74,7 @@ async def start(message: Message):
     )
 
 async def reward_referrals(inviter_id: int, level: int = 1):
-    rewards = [20000, 10000, 5000, 3000, 2000]   # ¡MUCHO MÁS POTENTE!
+    rewards = [20000, 10000, 5000, 3000, 2000]
     if level > 5: return
 
     user = supabase.table("users").select("coins").eq("id", inviter_id).execute()
@@ -136,10 +150,50 @@ async def ref(cb: CallbackQuery):
 async def soon(cb: CallbackQuery):
     await cb.answer("🚀 ¡En las próximas 24h! Prepárate...", show_alert=True)
 
+async def on_startup(bot: Bot):
+    # Configurar webhook para Railway
+    if os.getenv("RAILWAY_STATIC_URL"):
+        await bot.set_webhook(WEBHOOK_URL)
+        logging.info(f"Webhook configured: {WEBHOOK_URL}")
+    else:
+        # Para desarrollo local, eliminar webhook
+        await bot.delete_webhook()
+        logging.info("Webhook deleted for local development")
+
 async def main():
+    # Iniciar el bucle de energía
     asyncio.create_task(energy_loop())
-    await dp.start_polling(bot)
+    
+    # Si estamos en Railway, usamos webhook, sino polling
+    if os.getenv("RAILWAY_STATIC_URL"):
+        # Configurar aplicación web para Railway
+        app = web.Application()
+        webhook_requests_handler = SimpleRequestHandler(
+            dispatcher=dp,
+            bot=bot,
+        )
+        webhook_requests_handler.register(app, path=WEBHOOK_PATH)
+        
+        # Configurar startup
+        app.on_startup.append(on_startup)
+        
+        # Configurar la aplicación
+        setup_application(app, dp, bot=bot)
+        
+        # Ejecutar la aplicación
+        return app
+    else:
+        # Para desarrollo local: usar polling
+        await on_startup(bot)
+        await dp.start_polling(bot)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    
+    # Para Railway: iniciar servidor web
+    if os.getenv("RAILWAY_STATIC_URL"):
+        app = asyncio.run(main())
+        web.run_app(app, host=HOST, port=PORT)
+    else:
+        # Para desarrollo local: usar polling
+        asyncio.run(main())
