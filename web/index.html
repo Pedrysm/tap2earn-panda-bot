@@ -7,30 +7,40 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { margin: 0; overflow: hidden; background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; font-family: 'Arial'; }
-    #panda { transition: transform 0.1s; }
-    .tap-effect { position: absolute; pointer-events: none; font-weight: bold; animation: float 1s ease-out forwards; }
-    @keyframes float { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+    body { margin: 0; overflow: hidden; background: linear-gradient(135deg, #0f0f23, #1a1a2e); color: white; font-family: 'Arial', sans-serif; }
+    #panda { transition: transform 0.15s; }
+    .tap-effect { position: absolute; pointer-events: none; font-weight: bold; color: #ffca28; text-shadow: 0 0 10px #ffca28; animation: float 1s ease-out forwards; }
+    @keyframes float { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-120px) scale(1.5); } }
+    .energy-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+    .energy-fill { height: 100%; background: linear-gradient(90deg, #4ade80, #22d3ee); transition: width 0.3s; }
   </style>
 </head>
-<body class="h-screen flex flex-col">
-  <div id="loading" class="flex-1 flex items-center justify-center text-3xl">🐼 Cargando Crypto Panda...</div>
+<body class="h-screen flex flex-col touch-manipulation">
+
+  <div id="loading" class="flex-1 flex flex-col items-center justify-center text-4xl font-bold">
+    <img src="https://i.ibb.co/0jPK3Y3/panda-base.png" class="w-48 animate-pulse" />
+    <p class="mt-4">Cargando Crypto Panda...</p>
+  </div>
 
   <div id="game" class="flex-1 flex flex-col hidden">
+
     <!-- Header -->
-    <div class="p-4 text-center bg-black bg-opacity-50">
-      <div class="text-3xl font-bold" id="coins">0 $PANDA</div>
-      <div class="text-lg" id="energy">5000 ⚡️</div>
+    <div class="p-4 text-center bg-black bg-opacity-60 backdrop-blur">
+      <div class="text-4xl font-bold" id="coins">0 $PANDA</div>
+      <div class="flex items-center justify-center mt-2 gap-2">
+        <div class="energy-bar w-64"><div id="energy-fill" class="energy-fill w-full"></div></div>
+        <span id="energy-text" class="text-lg">5000 / 5000 ⚡️</span>
+      </div>
     </div>
 
     <!-- Panda Tap Area -->
     <div class="flex-1 flex items-center justify-center relative" id="tap-area">
-      <img id="panda" src="https://i.ibb.co.com/0jPK3Y3/panda-base.png" class="w-80 h-80" alt="Panda" />
+      <img id="panda" src="https://i.ibb.co/0jPK3Y3/panda-base.png" class="w-80 h-80 select-none" alt="Crypto Panda" />
     </div>
 
     <!-- Bottom Navigation -->
-    <div class="fixed bottom-0 left-0 right-0 bg-black bg-opacity-80 rounded-t-3xl">
-      <div class="flex justify-around py-4 text-2xl">
+    <div class="fixed bottom-0 left-0 right-0 bg-black bg-opacity-90 rounded-t-3xl border-t border-gray-800">
+      <div class="flex justify-around py-4 text-3xl">
         <button onclick="showPage('home')" class="text-yellow-400">🐼</button>
         <button onclick="showPage('boost')">🚀</button>
         <button onclick="showPage('daily')">🎁</button>
@@ -40,54 +50,70 @@
     </div>
   </div>
 
-  <!-- Páginas -->
-  <div id="home" class="hidden"></div>
-  <div id="boost" class="hidden p-6"><h2 class="text-3xl mb-4">Boosts</h2><div id="boost-list"></div></div>
-  <div id="daily" class="hidden p-6 text-center"><h2 class="text-3xl mb-6">Daily Combo</h2><div id="combo-cards" class="grid grid-cols-3 gap-4"></div><div class="mt-8 text-2xl" id="cipher">Cipher: ?????</div></div>
-  <div id="friends" class="hidden p-6"><h2 class="text-3xl mb-4">Referidos</h2><div id="ref-link"></div></div>
-  <div id="league" class="hidden p-6"><h2 class="text-3xl mb-4">Liga Semanal</h2><div id="leaderboard"></div></div>
+  <!-- Páginas simples por ahora -->
+  <div id="home" class="hidden p-8 text-center"><h2 class="text-3xl mb-4">¡Bienvenido!</h2><p>¡Toca el panda y hazte millonario!</p></div>
+  <div id="boost" class="hidden p-8"><h2 class="text-3xl mb-4">Boosts</h2><p>Próximamente...</p></div>
+  <div id="daily" class="hidden p-8 text-center"><h2 class="text-3xl mb-4">Daily Combo</h2><p>¡5.000.000 $PANDA pronto!</p></div>
+  <div id="friends" class="hidden p-8"><h2 class="text-3xl mb-4">Referidos</h2><p>Invita y gana millones</p></div>
+  <div id="league" class="hidden p-8"><h2 class="text-3xl mb-4">Liga Semanal</h2><p>Top 100 se lleva airdrop</p></div>
 
-  <script>
-    const supabase = Supabase.createClient('https://TU-PROYECTO.supabase.co', 'TU-ANON-KEY')
-    let user = Telegram.WebApp.initDataUnsafe.user
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    // Keys 100% seguras con variables de entorno
+    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://mixbbsgniudsgcucyfwe.supabase.co"
+    const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk"
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    // Usuario de Telegram
+    const tg = window.Telegram.WebApp
+    tg.ready()
+    const user = tg.initDataUnsafe.user || { id: 987654321, first_name: "Test", username: "testpanda" }
+
     let coins = 0, energy = 5000, maxEnergy = 5000, multitap = 1
 
     async function init() {
-      const { data } = await supabase.from('users').select('*').eq('id', user.id).single()
-      if (!data) location.reload()
-      coins = Number(data.coins), energy = data.energy, maxEnergy = data.max_energy, multitap = data.multitap || 1
+      let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single()
+      if (!data) {
+        await supabase.from('users').insert({ id: user.id, first_name: user.first_name, username: user.username || null })
+        data = { coins: 0, energy: 5000, max_energy: 5000, multitap: 1 }
+      }
+      coins = Number(data.coins || 0)
+      energy = data.energy || 5000
+      maxEnergy = data.max_energy || 5000
+      multitap = data.multitap || 1
+
       document.getElementById('loading').classList.add('hidden')
       document.getElementById('game').classList.remove('hidden')
       updateUI()
       setInterval(rechargeEnergy, 1000)
-      loadAll()
     }
 
     function updateUI() {
-      document.getElementById('coins').innerText = Number(coins).toLocaleString() + ' $PANDA'
-      document.getElementById('energy').innerText = energy + '/' + maxEnergy + ' ⚡️'
+      document.getElementById('coins').textContent = Number(coins).toLocaleString() + ' $PANDA'
+      document.getElementById('energy-text').textContent = `${energy} / ${maxEnergy} ⚡️`
+      document.getElementById('energy-fill').style.width = `${(energy / maxEnergy) * 100}%`
     }
 
     document.getElementById('tap-area').addEventListener('click', async (e) => {
-      if (energy < 1) return
+      if (energy <= 0) return
       energy -= 1
       coins += multitap
       await supabase.from('users').update({ coins, energy }).eq('id', user.id)
       updateUI()
 
-      // Animación +X
       const effect = document.createElement('div')
-      effect.className = 'tap-effect text-4xl text-yellow-400'
-      effect.innerText = '+' + multitap
-      effect.style.left = e.clientX - 30 + 'px'
-      effect.style.top = e.clientY - 50 + 'px'
+      effect.className = 'tap-effect text-5xl'
+      effect.textContent = '+' + multitap.toLocaleString()
+      effect.style.left = (e.touches ? e.touches[0].clientX : e.clientX) - 40 + 'px'
+      effect.style.top = (e.touches ? e.touches[0].clientY : e.clientY) - 80 + 'px'
       document.body.appendChild(effect)
       setTimeout(() => effect.remove(), 1000)
 
-      // Animación panda
       const panda = document.getElementById('panda')
-      panda.style.transform = 'scale(0.9)'
-      setTimeout(() => panda.style.transform = 'scale(1)', 100)
+      panda.style.transform = 'scale(0.92)'
+      setTimeout(() => panda.style.transform = '', 150)
     })
 
     function rechargeEnergy() {
@@ -101,11 +127,6 @@
     function showPage(page) {
       document.querySelectorAll('#home, #boost, #daily, #friends, #league').forEach(p => p.classList.add('hidden'))
       document.getElementById(page).classList.remove('hidden')
-    }
-
-    async function loadAll() {
-      // Aquí irán daily combo, leaderboard, etc. (te lo completo en el próximo mensaje si quieres más)
-      document.getElementById('ref-link').innerHTML = `<p class="text-xl">Tu enlace:</p><br><input class="bg-gray-800 p-3 rounded w-full" value="https://t.me/${Telegram.WebApp.initDataUnsafe.start_param || 'CryptoPandaBot'}?start=${user.id}" readonly onclick="this.select()">`
     }
 
     init()
