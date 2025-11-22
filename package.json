@@ -1,12 +1,11 @@
 {
-  "name": "tap2earn-panda-bot",
+  "name": "cryptopanda-web",
   "version": "1.0.0",
-  "description": "Telegram bot",
+  "private": true,
   "scripts": {
-    "start": "python main.py"
+    "start": "serve -s web -l 3000"
   },
-  "dependencies": {},
-  "engines": {
-    "node": "18.x"
+  "dependencies": {
+    "serve": "^14.2.5"
   }
 }

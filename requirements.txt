@@ -1,4 +1,5 @@
 aiogram==3.10.0
-supabase==2.3.0
+supabase-py==1.0.3
+gotrue==1.0.2
 python-dotenv==1.0.0
 aiohttp==3.9.0
