@@ -1,0 +1,12 @@
+{
+  "name": "tap2earn-panda-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot",
+  "scripts": {
+    "start": "python main.py"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": "18.x"
+  }
+}
