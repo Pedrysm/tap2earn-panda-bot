@@ -1,6 +1,93 @@
+// ===== DETECCIÓN DE TELEGRAM WEB APP =====
+class TelegramIntegration {
+    constructor() {
+        this.tg = window.Telegram?.WebApp;
+        this.isTelegram = false;
+        this.userData = null;
+        
+        this.init();
+    }
+
+    init() {
+        if (this.tg) {
+            console.log('✅ Detectado Telegram Web App');
+            this.isTelegram = true;
+            this.setupTelegram();
+        } else {
+            console.log('🌐 Modo navegador normal');
+            this.setupFallback();
+        }
+    }
+
+    setupTelegram() {
+        // Inicializar Telegram Web App
+        this.tg.ready();
+        this.tg.expand(); // Expandir para pantalla completa
+        
+        // Obtener datos del usuario
+        this.userData = this.tg.initDataUnsafe?.user;
+        
+        console.log('👤 Usuario de Telegram:', this.userData);
+        
+        // Configurar tema
+        this.setupTheme();
+        
+        // Configurar eventos de Telegram
+        this.setupTelegramEvents();
+    }
+
+    setupTheme() {
+        // Sincronizar con el tema de Telegram
+        this.tg.setHeaderColor('#000000');
+        this.tg.setBackgroundColor('#000000');
+        
+        // Escuchar cambios de tema
+        this.tg.onEvent('themeChanged', this.updateTheme);
+        this.tg.onEvent('viewportChanged', this.updateViewport);
+    }
+
+    setupTelegramEvents() {
+        // Evento cuando se cierra la Web App
+        this.tg.onEvent('close', () => {
+            console.log('Web App cerrada');
+        });
+        
+        // Evento cuando se hace back
+        this.tg.onEvent('backButtonClicked', () => {
+            this.tg.close();
+        });
+    }
+
+    setupFallback() {
+        // Datos de prueba para desarrollo
+        this.userData = {
+            id: Math.floor(Math.random() * 1000000),
+            first_name: 'Jugador',
+            username: 'jugador_' + Date.now()
+        };
+        
+        console.log('🎮 Modo desarrollo activado');
+    }
+
+    getUserInfo() {
+        return this.userData;
+    }
+
+    isInTelegram() {
+        return this.isTelegram;
+    }
+
+    closeWebApp() {
+        if (this.isTelegram) {
+            this.tg.close();
+        }
+    }
+}
+
 // ===== CONFIGURACIÓN DEL JUEGO ÉPICO =====
 class CryptoPandaGame {
     constructor() {
+        this.telegram = new TelegramIntegration();
         this.gameState = {
             coins: 0,
             energy: 6000,
@@ -12,7 +99,7 @@ class CryptoPandaGame {
             skinMultiplier: 1.0,
             levelMultiplier: 1.0,
             cardMultiplier: 1.0,
-            userId: null
+            userId: this.telegram.getUserInfo()?.id || 'demo_user'
         };
 
         this.init();
@@ -20,6 +107,7 @@ class CryptoPandaGame {
 
     init() {
         console.log('🎮 Inicializando Crypto Panda Épico...');
+        console.log('📱 Usuario:', this.telegram.getUserInfo());
         
         // Precargar imagen y iniciar secuencia
         this.preloadImageAndStart();
@@ -83,19 +171,47 @@ class CryptoPandaGame {
         setTimeout(() => {
             progressContainer.style.display = 'none';
             startBtn.classList.add('visible');
+            
+            // Enfocar el botón para mejor UX
+            startBtn.focus();
         }, 500);
     }
 
     setupEventListeners() {
-        // Botón de inicio
-        document.getElementById('startBtn').addEventListener('click', () => {
+        // Botón de inicio - MÚLTIPLES MÉTODOS para asegurar funcionamiento
+        const startBtn = document.getElementById('startBtn');
+        
+        // Método 1: click estándar
+        startBtn.addEventListener('click', (e) => {
+            console.log('🖱️ Click en botón START');
             this.startGame();
+        });
+        
+        // Método 2: touch para móviles
+        startBtn.addEventListener('touchstart', (e) => {
+            console.log('📱 Touch en botón START');
+            e.preventDefault();
+            this.startGame();
+        }, { passive: false });
+        
+        // Método 3: keypress para accesibilidad
+        startBtn.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                console.log('⌨️ Tecla en botón START');
+                this.startGame();
+            }
         });
 
         // Área de tap del panda
-        document.getElementById('panda').addEventListener('click', (e) => {
+        const panda = document.getElementById('panda');
+        panda.addEventListener('click', (e) => {
             this.handleTap(e);
         });
+        
+        panda.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.handleTap(e);
+        }, { passive: false });
 
         // Navegación por tabs
         document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -122,6 +238,11 @@ class CryptoPandaGame {
     startGame() {
         console.log('🚀 Iniciando juego épico...');
         
+        // Deshabilitar el botón temporalmente para evitar múltiples clicks
+        const startBtn = document.getElementById('startBtn');
+        startBtn.disabled = true;
+        startBtn.textContent = 'CARGANDO...';
+        
         // Ocultar splash screen con transición épica
         const splash = document.getElementById('splash-screen');
         splash.style.opacity = '1';
@@ -143,8 +264,21 @@ class CryptoPandaGame {
                 this.updateDisplay();
                 
                 console.log('🎉 Juego completamente cargado y listo!');
+                
+                // Enviar datos a Telegram si está en la app
+                if (this.telegram.isInTelegram()) {
+                    this.sendTelegramReady();
+                }
             }, 800);
         }, 100);
+    }
+
+    sendTelegramReady() {
+        // Notificar a Telegram que la app está lista
+        if (this.telegram.tg) {
+            this.telegram.tg.ready();
+            console.log('✅ Notificado a Telegram que la app está lista');
+        }
     }
 
     handleTap(event) {
@@ -394,13 +528,6 @@ class EffectSystem {
 document.addEventListener('DOMContentLoaded', () => {
     // Inicializar el juego épico
     window.cryptoPandaGame = new CryptoPandaGame();
-    
-    // Integración con Telegram Web App
-    if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-        console.log('✅ Integrado con Telegram Web App');
-    }
     
     console.log('🎮 Crypto Panda Épico completamente inicializado!');
 });
