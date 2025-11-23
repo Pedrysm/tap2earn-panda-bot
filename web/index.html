@@ -1,3 +1,6 @@
+ls
+cd ~/tap2earn-panda-bot/web
+cat > index.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
@@ -43,12 +46,18 @@
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
     const supabase = createClient("https://mixbbsgniudsgcucyfwe.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk")
 
-    const tg = window.Telegram.WebApp; tg.ready()
+    const tg = window.Telegram.WebApp
+    tg.ready()
     const userId = tg.initDataUnsafe?.user?.id || 123456789
 
-    setTimeout(() => document.getElementById('startBtn').style.display = 'block', 5000)
+    document.getElementById('loading').textContent = "Script activo 🐼"
+
+    setTimeout(() => {
+      document.getElementById('startBtn').style.display = 'block'
+    }, 5000)
 
     document.getElementById('startBtn').onclick = () => {
+      document.getElementById('loading').textContent = "Botón presionado ✅"
       document.getElementById('splash').style.display = 'none'
       document.getElementById('game').style.display = 'flex'
       initGame()
@@ -56,12 +65,12 @@
 
     function showError(message){
       const splash = document.getElementById('splash')
-      splash.innerHTML = \`
+      splash.innerHTML = `
         <div style="color:#ffd700;font-size:42px;text-align:center;padding:40px">
-          ⚠️ Error: \${message}<br><br>
+          ⚠️ Error: ${message}<br><br>
           Verifica conexión con Supabase o políticas RLS
         </div>
-      \`
+      `
     }
 
     async function initGame(){
