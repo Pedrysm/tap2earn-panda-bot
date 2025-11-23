@@ -6,13 +6,13 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body,html{height:100vh;overflow:hidden;background:#000}
-    #splash{height:100vh;background:url('portada.jpg') center/contain no-repeat;background-color:#000;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:120px}
-    #loading{font-size:70px;color:#ffd700;text-shadow:0 0 30px gold;margin-bottom:20px}
-    .bar{width:340px;height:16px;background:#333;border-radius:8px;overflow:hidden}
-    .fill{height:100%;width:0;background:linear-gradient(90deg,#ffd700,#ffaa00);animation:l 5s linear forwards}
-    @keyframes l{to{width:100%}}
-    #startBtn{display:none;margin-top:50px;padding:22px 80px;background:#ffd700;color:#000;font-size:52px;font-weight:bold;border:none;border-radius:40px;box-shadow:0 15px 40px #ffd70080;animation:p 1.5s infinite}
-    @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+    #splash{height:100vh;background:url('https://i.ibb.co/w8pgDM6/crypto-panda-epic.jpg') center/contain no-repeat;background-color:#000;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:140px}
+    #loading{font-size:60px;color:#ffd700;text-shadow:0 0 30px #ffaa00;margin-bottom:20px;letter-spacing:5px}
+    .bar{width:340px;height:14px;background:#333;border-radius:8px;overflow:hidden}
+    .fill{height:100%;width:0;background:linear-gradient(90deg,#ffd700,#ffaa00);animation:load 5s linear forwards}
+    @keyframes load{to{width:100%}}
+    #startBtn{display:none;margin-top:60px;padding:24px 90px;background:#ffd700;color:#000;font-size:50px;font-weight:bold;border:none;border-radius:50px;box-shadow:0 20px 50px #ffd70080;animation:pulse 1.5s infinite}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
     #game{display:none;height:100vh;flex-direction:column;background:#0a001f;color:white}
     .header{text-align:center;padding:20px;background:#000000bb}
     #coins{font-size:55px;font-weight:bold}
@@ -36,7 +36,7 @@
       <div id="energy">6000 / 6000 ⚡</div>
     </div>
     <div id="tapArea"><img id="panda" src="https://i.ibb.co/hoodie-panda-base.png"></div>
-    <div class="nav">🐼🚀🎁👥🏆</div>
+    <div class="nav">Panda Rocket Gift Friends Trophy</div>
   </div>
 
   <script type="module">
@@ -46,6 +46,7 @@
     const tg = window.Telegram.WebApp; tg.ready()
     const userId = BigInt(tg.initDataUnsafe?.user?.id || 123456789)
 
+    // Botón aparece a los 5 segundos
     setTimeout(() => document.getElementById('startBtn').style.display = 'block', 5000)
 
     document.getElementById('startBtn').onclick = () => {
@@ -55,11 +56,13 @@
     }
 
     async function initGame(){
-      let {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
-      if(!data) await supabase.from('profiles').insert({telegram_id:userId,coins:0,energy:6000,max_energy:6000})
-      profile = data || {coins:0,energy:6000,max_energy:6000}
-      updateUI()
-      setInterval(recharge,1000)
+      try {
+        let {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
+        if(!data) await supabase.from('profiles').insert({telegram_id:userId,coins:0,energy:6000,max_energy:6000})
+        profile = data || {coins:0,energy:6000,max_energy:6000}
+        updateUI()
+        setInterval(recharge,1000)
+      } catch(e){alert("Error Supabase")}
     }
 
     let profile = {coins:0,energy:6000,max_energy:6000}
