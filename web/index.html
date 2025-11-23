@@ -4,16 +4,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Crypto Panda 2025</title>
   <style>
-    *{margin:0;padding:0}
-    body,html{height:100%;overflow:hidden;background:#000}
-    #splash{height:100%;background:url('assets/portada.jpg') center/cover;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:140px}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body,html{height:100vh;overflow:hidden;background:#000}
+    #splash{height:100vh;background:url('assets/portada.jpg') center/cover;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:140px}
     #loading{font-size:70px;color:#ffd700;text-shadow:0 0 30px gold;margin-bottom:20px}
     .bar{width:340px;height:16px;background:#333;border-radius:8px;overflow:hidden}
     .fill{height:100%;width:0;background:linear-gradient(90deg,#ffd700,#ffaa00);animation:l 5s linear forwards}
     @keyframes l{to{width:100%}}
     #startBtn{display:none;margin-top:50px;padding:22px 80px;background:#ffd700;color:#000;font-size:52px;font-weight:bold;border:none;border-radius:40px;box-shadow:0 15px 40px #ffd70080;animation:p 1.5s infinite}
     @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-    #game{display:none;height:100%;flex-direction:column;background:#0a001f;color:white}
+    #game{display:none;height:100vh;flex-direction:column;background:#0a001f;color:white}
     .header{text-align:center;padding:20px;background:#000000bb}
     #coins{font-size:55px;font-weight:bold}
     #energy{font-size:35px;margin-top:10px}
@@ -36,7 +36,7 @@
       <div id="energy">6000 / 6000 ⚡</div>
     </div>
     <div id="tapArea"><img id="panda" src="https://i.ibb.co/hoodie-panda-base.png"></div>
-    <div class="nav">🐼🚀🎁👥🏆</div>
+    <div class="nav">Panda Rocket Gift Friends Trophy</div>
   </div>
 
   <script type="module">
@@ -55,13 +55,11 @@
     }
 
     async function initGame(){
-      try {
-        let { data } = await supabase.from('profiles').select('*').eq('telegram_id', userId).maybeSingle()
-        if (!data) await supabase.from('profiles').insert({ telegram_id: userId, coins: 0, energy: 6000, max_energy: 6000 })
-        else profile = data
-        updateUI()
-        setInterval(recharge, 1000)
-      } catch (e) { alert("Error Supabase: " + e.message) }
+      let {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
+      if(!data) await supabase.from('profiles').insert({telegram_id:userId,coins:0,energy:6000,max_energy:6000})
+      profile = data || {coins:0,energy:6000,max_energy:6000}
+      updateUI()
+      setInterval(recharge,1000)
     }
 
     let profile = {coins:0,energy:6000,max_energy:6000}
@@ -89,9 +87,8 @@
       document.body.appendChild(fx)
       setTimeout(() => fx.remove(), 1000)
 
-      let p = document.getElementById('panda')
-      p.style.transform = 'scale(0.88)'
-      setTimeout(() => p.style.transform = '', 150)
+      document.getElementById('panda').style.transform = 'scale(0.88)'
+      setTimeout(() => document.getElementById('panda').style.transform = '', 150)
     }
 
     function recharge(){
