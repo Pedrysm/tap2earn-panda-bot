@@ -4,11 +4,61 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Crypto Panda 2025</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <style>
-    body{margin:0;height:100vh;background:radial-gradient(circle at top,#1a0033,#000);color:white;overflow:hidden;font-family:Impact,sans-serif}
-    .header{background:#000000dd;padding:15px;text-align:center;border-bottom:4px solid #ffd700}
+    *{margin:0;padding:0}
+    body,html{height:100%;overflow:hidden;background:#000;font-family:Impact,sans-serif}
+    #splash{
+      height:100%;
+      background:url('assets/portada.jpg') center/cover;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      align-items:center;
+      padding-bottom:140px
+    }
+    #loading{
+      font-size:70px;
+      color:#ffd700;
+      text-shadow:0 0 30px gold;
+      margin-bottom:20px
+    }
+    .bar{
+      width:340px;
+      height:16px;
+      background:#333;
+      border-radius:8px;
+      overflow:hidden
+    }
+    .fill{
+      height:100%;
+      width:0;
+      background:linear-gradient(90deg,#ffd700,#ffaa00);
+      animation:l 5s linear forwards
+    }
+    @keyframes l{to{width:100%}}
+    #startBtn{
+      display:none;
+      margin-top:50px;
+      padding:22px 80px;
+      background:#ffd700;
+      color:#000;
+      font-size:52px;
+      font-weight:bold;
+      border:none;
+      border-radius:40px;
+      box-shadow:0 15px 40px #ffd70080;
+      animation:p 1.5s infinite
+    }
+    @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+    #game{
+      display:none;
+      height:100%;
+      flex-direction:column;
+      background:radial-gradient(circle at top,#1a0033,#000);
+      color:white
+    }
+    .header{text-align:center;padding:20px;background:#000000dd;border-bottom:4px solid #ffd700}
     #coins{font-size:60px;text-shadow:0 0 20px gold}
     #level{font-size:32px;color:#ffaa00}
     #energy{font-size:36px}
@@ -22,35 +72,51 @@
     @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.3)}}
   </style>
 </head>
-<body class="flex flex-col">
+<body>
 
-  <div class="header">
-    <div id="coins">0 $PANDA</div>
-    <div id="level">Level 1</div>
-    <div id="energy">6000 / 6000 ⚡</div>
+  <div id="splash">
+    <div id="loading">loading</div>
+    <div class="bar"><div class="fill"></div></div>
+    <button id="startBtn">Start game</button>
   </div>
 
-  <div id="tapArea">
-    <img id="panda" src="https://i.ibb.co/hoodie-panda-base.png">
-    <div id="combo" class="combo">COMBO x10!</div>
-  </div>
-
-  <div class="nav">
-    <button>🐼</button>
-    <button>🚀</button>
-    <button>🎁</button>
-    <button>👥</button>
-    <button>🏆</button>
+  <div id="game">
+    <div class="header">
+      <div id="coins">0 $PANDA</div>
+      <div id="level">Level 1</div>
+      <div id="energy">6000 / 6000 ⚡</div>
+    </div>
+    <div id="tapArea">
+      <img id="panda" src="https://i.ibb.co/hoodie-panda-base.png">
+      <div id="combo" class="combo">COMBO x10!</div>
+    </div>
+    <div class="nav">
+      <button>🐼</button>
+      <button>🚀</button>
+      <button>🎁</button>
+      <button>👥</button>
+      <button>🏆</button>
+    </div>
   </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
     const supabase = createClient("https://mixbbsgniudsgcucyfwe.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk")
-    
+
     const tg = window.Telegram.WebApp; tg.ready()
-    const userId = BigInt(tg.initDataUnsafe?.user?.id || 123456789)
+    const userId = tg.initDataUnsafe?.user?.id || 123456789
 
     let profile = {coins:0,energy:6000,max_energy:6000,multitap:1,level:1,combo:0}
+
+    setTimeout(() => {
+      document.getElementById('startBtn').style.display = 'block'
+    }, 5000)
+
+    document.getElementById('startBtn').onclick = () => {
+      document.getElementById('splash').style.display = 'none'
+      document.getElementById('game').style.display = 'flex'
+      init()
+    }
 
     async function init(){
       let {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
@@ -98,6 +164,275 @@
       setTimeout(() => fx.remove(), 1000)
 
       let p = document.getElementById('panda')
+      p.style.transform = '
+exit
+
+jdjd
+cd ~/tap2earn-panda-bot/web
+cat > index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Crypto Panda 2025</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <style>
+    *{margin:0;padding:0}
+    body,html{height:100%;overflow:hidden;background:#000;font-family:Impact,sans-serif}
+    #splash{height:100%;background:url('assets/portada.jpg') center/cover;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:140px}
+    #loading{font-size:70px;color:#ffd700;text-shadow:0 0 30px gold;margin-bottom:20px}
+    .bar{width:340px;height:16px;background:#333;border-radius:8px;overflow:hidden}
+    .fill{height:100%;width:0;background:linear-gradient(90deg,#ffd700,#ffaa00);animation:l 5s linear forwards}
+    @keyframes l{to{width:100%}}
+    #startBtn{display:none;margin-top:50px;padding:22px 80px;background:#ffd700;color:#000;font-size:52px;font-weight:bold;border:none;border-radius:40px;box-shadow:0 15px 40px #ffd70080;animation:p 1.5s infinite}
+    @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+    #game{display:none;height:100%;flex-direction:column;background:radial-gradient(circle at top,#1a0033,#000);color:white}
+    .header{text-align:center;padding:20px;background:#000000dd;border-bottom:4px solid #ffd700}
+    #coins{font-size:60px;text-shadow:0 0 20px gold}
+    #level{font-size:32px;color:#ffaa00}
+    #energy{font-size:36px}
+    #tapArea{flex:1;display:flex;justify-content:center;align-items:center;position:relative}
+    #panda{width:420px;filter:drop-shadow(0 0 40px #ffd700)}
+    .tap{position:absolute;color:#fff;font-size:100px;font-weight:900;text-shadow:0 0 30px gold;pointer-events:none;animation:t 1s forwards;z-index:99}
+    @keyframes t{to{transform:translateY(-200px) scale(3);opacity:0}}
+    .nav{position:fixed;bottom:0;width:100%;background:#000000ee;padding:20px 0;display:flex;justify-content:space-around;font-size:70px}
+    .nav button{background:#ffd700;color:#000;padding:20px;border-radius:50%;width:90px;height:90px;box-shadow:0 10px 30px #ffd70080}
+    .combo{font-size:80px;color:gold;position:absolute;top:20%;left:50%;transform:translateX(-50%);animation:pulse 1s infinite;display:none}
+    @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.3)}}
+    #skinSelector{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000ee;z-index:999;flex-direction:column;align-items:center;justify-content:center;color:white}
+    #skinSelector h2{font-size:40px;margin-bottom:20px}
+    #skinOptions{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+    #skinSelector button{margin-top:40px;padding:20px 40px;background:#ffd700;color:#000;font-size:30px;border:none;border-radius:20px}
+  </style>
+</head>
+<body>
+
+  <div id="splash">
+    <div id="loading">loading</div>
+    <div class="bar"><div class="fill"></div></div>
+    <button id="startBtn">Start game</button>
+  </div>
+
+  <div id="game">
+    <div class="header">
+      <div id="coins">0 $PANDA</div>
+      <div id="level">Level 1</div>
+      <div id="energy">6000 / 6000 ⚡</div>
+    </div>
+    <div id="tapArea">
+      <img id="panda" src="https://i.ibb.co/hoodie-panda-base.png">
+      <div id="combo" class="combo">COMBO x10!</div>
+    </div>
+    <div class="nav">
+      <button>🐼</button>
+      <button>🚀</button>
+      <button>🎁</button>
+      <button>👥</button>
+      <button onclick="openSkinSelector()">🎨</button>
+    </div>
+  </div>
+
+  <div id="skinSelector">
+    <h2>Choose your Panda Skin</h2>
+    <div id="skinOptions"></div>
+    <button onclick="closeSkinSelector()">Close</button>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+    const supabase = createClient("https://mixbbsgniudsgcucyfwe.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk")
+
+    const tg = window.Telegram.WebApp; tg.ready()
+    const userId = tg.initDataUnsafe?.user?.id || 123456789
+    let profile = {coins:0,energy:6000,max_energy:6000,multitap:1,level:1,combo:0,panda_skin:'hoodie'}
+
+    setTimeout(() => {
+      document.getElementById('startBtn').style.display = 'block'
+    }, 5000)
+
+    document.getElementById('startBtn').onclick = () => {
+      document.getElementById('splash').style.display = 'none'
+      document.getElementById('game').style.display = 'flex'
+      init()
+    }
+
+    async function init(){
+      let {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
+      if(!data) await supabase.from('profiles').insert({telegram_id:userId,coins:0,energy:6000,max_energy:6000,multitap:1,level:1,panda_skin:'hoodie'})
+      if(data) profile = data
+      update()
+      setInterval(recharge,1000)
+    }
+
+    async function update(){
+      document.getElementById('coins').textContent = Number(profile.coins||0).toLocaleString() + ' $PANDA'
+      document.getElementById('level').textContent = 'Level ' + (profile.level||1)
+      document.getElementById('energy').textContent = (profile.energy||6000) + ' / ' + (profile.max_energy||6000) + ' ⚡'
+      if(profile.panda_skin){
+        const { data } = await supabase.from('panda_skins').select('image_url').eq('name', profile.panda_skin).maybeSingle()
+        if(data?.image_url) document.getElementById('panda').src = data.image_url
+      }
+    }
+
+    let comboCount = 0
+    let lastTap = Date.now()
+
+    document.getElementById('tapArea').onclick = async e => {
+      if(profile.energy <= 0) return
+      profile.energy--
+      const now = Date.now()
+      if(now - lastTap < 400) comboCount++
+      else comboCount = 1
+      lastTap = now
+
+      const ea
+cd ~/tap2earn-panda-bot/web
+cat > index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Crypto Panda 2025</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <style>
+    *{margin:0;padding:0}
+    body,html{height:100%;overflow:hidden;background:#000;font-family:Impact,sans-serif}
+    #splash{height:100%;background:url('assets/portada.jpg') center/cover;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:140px}
+    #loading{font-size:70px;color:#ffd700;text-shadow:0 0 30px gold;margin-bottom:20px}
+    .bar{width:340px;height:16px;background:#333;border-radius:8px;overflow:hidden}
+    .fill{height:100%;width:0;background:linear-gradient(90deg,#ffd700,#ffaa00);animation:l 5s linear forwards}
+    @keyframes l{to{width:100%}}
+    #startBtn{display:none;margin-top:50px;padding:22px 80px;background:#ffd700;color:#000;font-size:52px;font-weight:bold;border:none;border-radius:40px;box-shadow:0 15px 40px #ffd70080;animation:p 1.5s infinite}
+    @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+    #game{display:none;height:100%;flex-direction:column;background:radial-gradient(circle at top,#1a0033,#000);color:white}
+    .header{text-align:center;padding:20px;background:#000000dd;border-bottom:4px solid #ffd700}
+    #coins{font-size:60px;text-shadow:0 0 20px gold}
+    #level{font-size:32px;color:#ffaa00}
+    #energy{font-size:36px}
+    #tapArea{flex:1;display:flex;justify-content:center;align-items:center;position:relative}
+    #panda{width:420px;filter:drop-shadow(0 0 40px #ffd700)}
+    .tap{position:absolute;color:#fff;font-size:100px;font-weight:900;text-shadow:0 0 30px gold;pointer-events:none;animation:t 1s forwards;z-index:99}
+    @keyframes t{to{transform:translateY(-200px) scale(3);opacity:0}}
+    .nav{position:fixed;bottom:0;width:100%;background:#000000ee;padding:20px 0;display:flex;justify-content:space-around;font-size:70px}
+    .nav button{background:#ffd700;color:#000;padding:20px;border-radius:50%;width:90px;height:90px;box-shadow:0 10px 30px #ffd70080}
+    .combo{font-size:80px;color:gold;position:absolute;top:20%;left:50%;transform:translateX(-50%);animation:pulse 1s infinite;display:none}
+    @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.3)}}
+    #skinSelector{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000ee;z-index:999;flex-direction:column;align-items:center;justify-content:center;color:white}
+    #skinSelector h2{font-size:40px;margin-bottom:20px}
+    #skinOptions{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+    #skinSelector button{margin-top:40px;padding:20px 40px;background:#ffd700;color:#000;font-size:30px;border:none;border-radius:20px}
+  </style>
+</head>
+<body>
+
+  <div id="splash">
+    <div id="loading">loading</div>
+    <div class="bar"><div class="fill"></div></div>
+    <button id="startBtn">Start game</button>
+  </div>
+
+  <div id="game">
+    <div class="header">
+      <div id="coins">0 $PANDA</div>
+      <div id="level">Level 1</div>
+      <div id="energy">6000 / 6000 ⚡</div>
+    </div>
+    <div id="tapArea">
+      <img id="panda" src="https://i.ibb.co/hoodie-panda-base.png">
+      <div id="combo" class="combo">COMBO x10!</div>
+    </div>
+    <div class="nav">
+      <button>🐼</button>
+      <button>🚀</button>
+      <button>🎁</button>
+      <button>👥</button>
+      <button onclick="openSkinSelector()">🎨</button>
+    </div>
+  </div>
+
+  <div id="skinSelector">
+    <h2>Choose your Panda Skin</h2>
+    <div id="skinOptions"></div>
+    <button onclick="closeSkinSelector()">Close</button>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+    const supabase = createClient("https://mixbbsgniudsgcucyfwe.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk")
+
+    const tg = window.Telegram.WebApp; tg.ready()
+    const userId = tg.initDataUnsafe?.user?.id || 123456789
+    let profile = {coins:0,energy:6000,max_energy:6000,multitap:1,level:1,combo:0,panda_skin:'hoodie'}
+
+    setTimeout(() => {
+      document.getElementById('startBtn').style.display = 'block'
+    }, 5000)
+
+    document.getElementById('startBtn').onclick = () => {
+      document.getElementById('splash').style.display = 'none'
+      document.getElementById('game').style.display = 'flex'
+      init()
+    }
+
+    async function init(){
+      let {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
+      if(!data) await supabase.from('profiles').insert({telegram_id:userId,coins:0,energy:6000,max_energy:6000,multitap:1,level:1,panda_skin:'hoodie'})
+      if(data) profile = data
+      update()
+      setInterval(recharge,1000)
+    }
+
+    async function update(){
+      document.getElementById('coins').textContent = Number(profile.coins||0).toLocaleString() + ' $PANDA'
+      document.getElementById('level').textContent = 'Level ' + (profile.level||1)
+      document.getElementById('energy').textContent = (profile.energy||6000) + ' / ' + (profile.max_energy||6000) + ' ⚡'
+      if(profile.panda_skin){
+        const { data } = await supabase.from('panda_skins').select('image_url').eq('name', profile.panda_skin).maybeSingle()
+        if(data?.image_url) document.getElementById('panda').src = data.image_url
+      }
+    }
+
+    let comboCount = 0
+    let lastTap = Date.now()
+
+    document.getElementById('tapArea').onclick = async e => {
+      if(profile.energy <= 0) return
+      profile.energy--
+      const now = Date.now()
+      if(now - lastTap < 400) comboCount++
+      else comboCount = 1
+      lastTap = now
+
+      const earn = (profile.multitap||1) * (comboCount >= 10 ? 10 : 1)
+      profile.coins = Number(profile.coins) + earn
+
+      if(comboCount >= 10){
+        document.getElementById('combo').style.display = 'block'
+        confetti({particleCount:100,spread:70,origin:{y:0.6}})
+        setTimeout(()=>document.getElementById('combo').style.display='none',2000)
+      }
+
+      await supabase.from('profiles')
+        .update({
+          coins: profile.coins,
+          energy: profile.energy,
+          multitap: profile.multitap || 1
+        })
+        .eq('telegram_id', userId)
+
+      update()
+
+      let fx = document.createElement('div')
+      fx.className = 'tap'
+      fx.textContent = '+' + earn
+      fx.style.left = e.clientX - 60 + 'px'
+      fx.style.top = e.clientY - 120 + 'px'
+      document.body.appendChild(fx)
+      setTimeout(() => fx.remove(), 1000)
+
+      let p = document.getElementById('panda')
       p.style.transform = 'scale(0.85)'
       setTimeout(() => p.style.transform = '', 150)
     }
@@ -105,12 +440,45 @@
     function recharge(){
       if(profile.energy < profile.max_energy){
         profile.energy++
-        supabase.from('profiles').update({energy:profile.energy}).eq('telegram_id',userId)
+        supabase.from('profiles')
+          .update({ energy: profile.energy })
+          .eq('telegram_id', userId)
         update()
       }
     }
 
-    init()
+    function openSkinSelector(){
+      document.getElementById('skinSelector').style.display = 'flex'
+      loadSkins()
+    }
+
+    function closeSkinSelector(){
+      document.getElementById('skinSelector').style.display = 'none'
+    }
+
+    async function loadSkins(){
+      const { data } = await supabase.from('panda_skins').select('*')
+      const container = document.getElementById('skinOptions')
+      container.innerHTML = ''
+      data.forEach(skin => {
+        const btn = document.createElement('button')
+        btn.innerHTML = `
+          <img src="${skin.image_url}" style="width:120px;border-radius:20px"><br>${skin.name}
+        `
+        btn.style = 'background:#111;padding:10px;color:white;border:none;border-radius:20px;font-size:20px'
+        btn.onclick = () => selectSkin(skin.name, skin.image_url)
+        container.appendChild(btn)
+      })
+    }
+
+    async function selectSkin(name, image){
+      await supabase.from('profiles')
+        .update({ panda_skin: name })
+        .eq('telegram_id', userId)
+      document.getElementById('panda').src = image
+      profile.panda_skin = name
+      closeSkinSelector()
+    }
   </script>
 </body>
 </html>
