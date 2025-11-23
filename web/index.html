@@ -42,11 +42,10 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
     const supabase = createClient("https://mixbbsgniudsgcucyfwe.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk")
-    
-    const tg = window.Telegram.WebApp; tg.ready()
-    const userId = BigInt(tg.initDataUnsafe?.user?.id || 123456789)
 
-    // Botón aparece a los 5 segundos
+    const tg = window.Telegram.WebApp; tg.ready()
+    const userId = tg.initDataUnsafe?.user?.id || 123456789
+
     setTimeout(() => document.getElementById('startBtn').style.display = 'block', 5000)
 
     document.getElementById('startBtn').onclick = () => {
@@ -55,12 +54,44 @@
       initGame()
     }
 
+    function showError(message){
+      const splash = document.getElementById('splash')
+      splash.innerHTML = \`
+        <div style="color:#ffd700;font-size:42px;text-align:center;padding:40px">
+          ⚠️ Error: \${message}<br><br>
+          Verifica conexión con Supabase o políticas RLS
+        </div>
+      \`
+    }
+
     async function initGame(){
-      let {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
-      if(!data) await supabase.from('profiles').insert({telegram_id:userId,coins:0,energy:6000,max_energy:6000})
-      else profile = data
-      updateUI()
-      setInterval(recharge,1000)
+      try {
+        let { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('telegram_id', userId)
+          .maybeSingle()
+
+        if (error) throw error
+
+        if (!data) {
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({ telegram_id: userId, coins: 0, energy: 6000, max_energy: 6000 })
+
+          if (insertError) throw insertError
+
+          profile = { coins: 0, energy: 6000, max_energy: 6000 }
+        } else {
+          profile = data
+        }
+
+        updateUI()
+        setInterval(recharge, 1000)
+      } catch (err) {
+        showError("No se pudo conectar con Supabase 🐼")
+        console.error("initGame error:", err)
+      }
     }
 
     function updateUI(){
