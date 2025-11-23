@@ -1,73 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Crypto Panda 2025</title>
   <style>
-    body,html{margin:0;height:100%;overflow:hidden;background:#000}
-    #splash{height:100%;background:url('https://i.ibb.co/w8pgDM6/crypto-panda-epic.jpg') center/cover;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:120px}
-    #loading{font-size:60px;color:#ffd700;text-shadow:0 0 30px gold;margin:20px}
-    .bar{width:300px;height:12px;background:#333;border-radius:6px;overflow:hidden}
-    .fill{height:100%;width:0;background:gold;animation:l 5s linear forwards}
-    @keyframes l{to{width:100%}}
-    #start{margin-top:40px;padding:20px 60px;background:gold;color:#000;font-size:48px;border:none;border-radius:30px;box-shadow:0 10px 30px #ffd70080;animation:p 2s infinite}
-    @keyframes p{50%{transform:scale(1.1)}}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body,html{height:100%;overflow:hidden;background:#000}
+    #splash{height:100%;background:url('https://i.ibb.co/w8pgDM6/crypto-panda-epic.jpg') center/cover no-repeat;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:100px}
+    #loading{font-size:60px;color:#ffd700;text-shadow:0 0 30px gold;margin-bottom:20px}
+    .bar{width:320px;height:14px;background:#333;border-radius:8px;overflow:hidden}
+    .fill{height:100%;width:0;background:linear-gradient(90deg,#ffd700,#ffaa00);animation:load 5s linear forwards}
+    @keyframes load{to{width:100%}}
+    #startBtn{margin-top:50px;padding:20px 70px;background:linear-gradient(#ffd700,#b8860b);color:#000;font-size:50px;font-weight:bold;border:none;border-radius:40px;box-shadow:0 15px 40px #ffd70080;animation:pulse 1.8s infinite;display:none}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
     #game{display:none;height:100%;flex-direction:column;background:#0a001f;color:white}
-    .header{text-align:center;padding:20px;background:#0009}
-    #coins{font-size:50px;font-weight:bold}
+    .header{text-align:center;padding:20px;background:#000000bb}
+    #coins,#energy{font-size:48px;font-weight:bold}
     #tapArea{flex:1;display:flex;justify-content:center;align-items:center}
-    #panda{width:320px}
-    .nav{position:fixed;bottom:0;width:100%;background:#0009;padding:15px 0;display:flex;justify-content:space-around;font-size:60px}
+    #panda{width:340px}
+    .nav{position:fixed;bottom:0;width:100%;background:#000000ee;padding:15px 0;display:flex;justify-content:space-around;font-size:60px}
   </style>
 </head>
 <body>
+
+  <!-- PANTALLA ÉPICA -->
   <div id="splash">
     <div id="loading">loading</div>
     <div class="bar"><div class="fill"></div></div>
-    <button id="start" style="display:none">Start game</button>
+    <button id="startBtn">Start game</button>
   </div>
 
+  <!-- JUEGO -->
   <div id="game">
     <div class="header">
       <div id="coins">0 $PANDA</div>
       <div id="energy">6000 / 6000 ⚡</div>
     </div>
     <div id="tapArea"><img id="panda" src="https://i.ibb.co/hoodie-panda-base.png"></div>
-    <div class="nav">Panda Rocket Gift Friends Trophy</div>
+    <div class="nav">🐼🚀🎁👥🏆</div>
   </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-    const supabase = createClient(
-      "https://mixbbsgniudsgcucyfwe.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk"
-    )
+    const supabase = createClient("https://mixbbsgniudsgcucyfwe.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk")
+    
     const tg = window.Telegram.WebApp; tg.ready()
     const userId = BigInt(tg.initDataUnsafe?.user?.id || 123456789)
+    let profile = {coins:0,energy:6000,max_energy:6000,multitap:1}
 
-    setTimeout(()=>document.getElementById('start').style.display='block',5000)
-    document.getElementById('start').onclick=()=>{
-      document.getElementById('splash').style.display='none'
-      document.getElementById('game').style.display='flex'
+    // Botón aparece a los 5 segundos
+    setTimeout(()=>document.getElementById('startBtn').style.display='block',5000)
+
+    document.getElementById('startBtn').onclick = () => {
+      document.getElementById('splash').style.display = 'none'
+      document.getElementById('game').style.display = 'flex'
       init()
     }
 
     async function init(){
-      let {data}=await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
-      if(!data) await supabase.from('profiles').insert({telegram_id:userId})
-      setInterval(()=>{if(data.energy<6000){data.energy++;supabase.from('profiles').update({energy:data.energy}).eq('telegram_id',userId);update()}},1000)
+      const {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
+      if(data) profile = data
+      else await supabase.from('profiles').insert({telegram_id:userId})
       update()
+      setInterval(recharge,1000)
     }
-    function update(){document.getElementById('coins').innerText=(data?.coins||0).toLocaleString()+' $PANDA'}
-    document.getElementById('tapArea').onclick=e=>{
-      if(data.energy<=0) return
-      data.energy--; data.coins=(data.coins||0)+1
-      supabase.from('profiles').update({coins:data.coins,energy:data.energy}).eq('telegram_id',userId)
+
+    function update(){
+      document.getElementById('coins').textContent = Number(profile.coins||0).toLocaleString() + ' $PANDA'
+      document.getElementById('energy').textContent = (profile.energy||6000)+' / '+(profile.max_energy||6000)+' ⚡'
+    }
+
+    document.getElementById('tapArea').onclick = async e => {
+      if(profile.energy<=0) return
+      profile.energy--
+      profile.coins = Number(profile.coins||0) + (profile.multitap||1)
+      await supabase.from('profiles').update({coins:profile.coins,energy:profile.energy}).eq('telegram_id',userId)
       update()
-      let fx=document.createElement('div'); fx.innerText='+1'; fx.style.position='absolute'; fx.style.left=e.clientX-30+'px'; fx.style.top=e.clientY-80+'px'; fx.style.fontSize='70px'; fx.style.color='gold'; document.body.appendChild(fx)
+      let fx=document.createElement('div')
+      fx.textContent='+'+(profile.multitap||1)
+      fx.style.position='absolute'; fx.style.left=e.clientX-40+'px'; fx.style.top=e.clientY-100+'px'
+      fx.style.fontSize='80px'; fx.style.color='#ffd700'; fx.style.fontWeight='bold'
+      document.body.appendChild(fx)
       setTimeout(()=>fx.remove(),1000)
       document.getElementById('panda').style.transform='scale(0.9)'
       setTimeout(()=>document.getElementById('panda').style.transform='',150)
+    }
+
+    function recharge(){
+      if(profile.energy < profile.max_energy){
+        profile.energy++
+        supabase.from('profiles').update({energy:profile.energy}).eq('telegram_id',userId)
+        update()
+      }
     }
   </script>
 </body>
