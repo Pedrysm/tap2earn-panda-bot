@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Panda - Advanced Tap2Earn</title>
+    <meta name="description" content="Evoluciona tu panda, colecciona skins únicas y compite en torneos épicos">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/evolution.css">
+    <link rel="stylesheet" href="css/skins.css">
+    <link rel="stylesheet" href="css/clan.css">
+    <link rel="stylesheet" href="css/cards.css">
+    <link rel="stylesheet" href="css/tournament.css">
+    
+    <!-- Telegram Web App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Splash Screen -->
+        <div id="splash-screen" class="screen active">
+            <div class="background-image"></div>
+            <div class="background-overlay"></div>
+            
+            <div class="loading-content">
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-label">Cargando Crypto Panda Universe</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <button id="startBtn" class="start-button">INICIAR AVENTURA</button>
+                
+                <div class="game-features">
+                    <div class="feature-item">🐼 10 Niveles de Evolución</div>
+                    <div class="feature-item">🎨 20+ Skins Únicas</div>
+                    <div class="feature-item">🏆 Torneos en Tiempo Real</div>
+                    <div class="feature-item">🃏 Sistema de Cartas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Game Interface -->
+        <div id="main-game" class="screen">
+            <!-- Header con múltiples stats -->
+            <header class="game-header">
+                <div class="player-main-info">
+                    <div class="level-badge">
+                        <span id="playerLevel">1</span>
+                    </div>
+                    <div class="player-resources">
+                        <div class="resource-item">
+                            <span class="resource-icon">💰</span>
+                            <span id="playerCoins">0</span>
+                            <span class="resource-symbol">$PANDA</span>
+                        </div>
+                        <div class="resource-item">
+                            <span class="resource-icon">💎</span>
+                            <span id="playerGems">0</span>
+                        </div>
+                        <div class="resource-item">
+                            <span class="resource-icon">⚡</span>
+                            <span id="energyText">6000/6000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="energy-container">
+                    <div class="energy-bar">
+                        <div class="energy-fill" id="energyFill"></div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <button class="action-btn" id="dailyRewardBtn" title="Recompensa Diaria">
+                        <span>🎁</span>
+                    </button>
+                    <button class="action-btn" id="tournamentBtn" title="Torneos">
+                        <span>🏆</span>
+                    </button>
+                    <button class="action-btn" id="friendsBtn" title="Amigos">
+                        <span>👥</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Navigation Tabs -->
+            <nav class="game-navigation">
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-tab="tap">
+                        <span class="tab-icon">👆</span>
+                        <span class="tab-text">TAP</span>
+                    </button>
+                    <button class="nav-tab" data-tab="evolution">
+                        <span class="tab-icon">🐼</span>
+                        <span class="tab-text">EVOLUCION</span>
+                    </button>
+                    <button class="nav-tab" data-tab="skins">
+                        <span class="tab-icon">🎨</span>
+                        <span class="tab-text">SKINS</span>
+                    </button>
+                    <button class="nav-tab" data-tab="cards">
+                        <span class="tab-icon">🃏</span>
+                        <span class="tab-text">CARTAS</span>
+                    </button>
+                    <button class="nav-tab" data-tab="clan">
+                        <span class="tab-icon">🏘️</span>
+                        <span class="tab-text">CLAN</span>
+                    </button>
+                    <button class="nav-tab" data-tab="shop">
+                        <span class="tab-icon">🛒</span>
+                        <span class="tab-text">TIENDA</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main class="game-content">
+                <!-- Tab Content will be loaded here dynamically -->
+                <div id="tab-content" class="tab-content">
+                    <!-- Content loaded by JavaScript -->
+                </div>
+            </main>
+
+            <!-- Bottom Bar -->
+            <footer class="game-footer">
+                <div class="combo-display" id="comboDisplay">
+                    <span class="combo-text">COMBO</span>
+                    <span class="combo-count">x1</span>
+                </div>
+                
+                <div class="boost-indicators">
+                    <div class="boost-item" id="skinBoost">
+                        <span>🎨</span>
+                        <span class="boost-value">1.0x</span>
+                    </div>
+                    <div class="boost-item" id="levelBoost">
+                        <span>🐼</span>
+                        <span class="boost-value">1.0x</span>
+                    </div>
+                    <div class="boost-item" id="cardBoost">
+                        <span>🃏</span>
+                        <span class="boost-value">0%</span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Modals -->
+        <div id="evolution-modal" class="modal">
+            <!-- Modal content for evolution -->
+        </div>
+
+        <div id="skin-modal" class="modal">
+            <!-- Modal content for skins -->
+        </div>
+
+        <div id="tournament-modal" class="modal">
+            <!-- Modal content for tournaments -->
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script type="module" src="js/config.js"></script>
+    <script type="module" src="js/core/gameEngine.js"></script>
+    <script type="module" src="js/systems/evolutionSystem.js"></script>
+    <script type="module" src="js/systems/skinSystem.js"></script>
+    <script type="module" src="js/systems/cardSystem.js"></script>
+    <script type="module" src="js/systems/clanSystem.js"></script>
+    <script type="module" src="js/systems/tournamentSystem.js"></script>
+    <script type="module" src="js/ui/tabManager.js"></script>
+    <script type="module" src="js/ui/modalManager.js"></script>
+    <script type="module" src="js/api/gameApi.js"></script>
+    <script type="module" src="js/utils/helpers.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
