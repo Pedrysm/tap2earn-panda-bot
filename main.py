@@ -3,19 +3,12 @@ import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-from aiohttp import web
 
-# ====== CONFIG 2025 ======
+# ====== CONFIG 2025 RAILWAY POLLING MODE ======
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-WEBAPP_URL = "https://crypto-panda.pages.dev"  # TU WEBAPP VIVA
+WEBAPP_URL = "https://crypto-panda.pages.dev"
 
-# Webhook para Railway
-WEBHOOK_HOST = os.getenv("RAILWAY_STATIC_URL", "localhost")
-WEBHOOK_PATH = f"/webhook/{BOT_TOKEN.split(':')[1]}"
-WEBHOOK_URL = f"https://{WEBHOOK_HOST}{WEBHOOK_PATH}"
-
-bot = Bot(token=BOT_TOKEN)  # Sin parse_mode obsoleto
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 # Botón épico
@@ -34,20 +27,12 @@ async def start(message: Message):
 🔥 Los primeros ya tienen +100 MILLONES
 
 ¡Toca el panda y conviértete en leyenda!"""
-    await message.answer(welcome, reply_markup=webapp_keyboard(), disable_web_page_preview=True)
+    await message.answer(welcome, reply_markup=webapp_keyboard())
 
-async def on_startup(app):
-    await bot.set_webhook(WEBHOOK_URL)
-    logging.info(f"Webhook activo: {WEBHOOK_URL}")
-
-def create_app():
-    app = web.Application()
-    handler = SimpleRequestHandler(dispatcher=dp, bot=bot)
-    handler.register(app, path=WEBHOOK_PATH)
-    app.on_startup.append(on_startup)
-    setup_application(app, dp, bot=bot)
-    return app
+async def main():
+    logging.basicConfig(level=logging.INFO)
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    web.run_app(create_app(), host="0.0.0.0", port=int(os.getenv("PORT", 3000)))
+    import asyncio
+    asyncio.run(main())
