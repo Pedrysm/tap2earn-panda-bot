@@ -13,9 +13,14 @@ dp = Dispatcher()
 
 @dp.message(Command("start"))
 async def start(message: Message):
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(" JUGAR CRYPTO PANDA 2025 ", web_app=WebAppInfo(url=WEBAPP_URL))
-    ]])
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[
+            InlineKeyboardButton(
+                text=" JUGAR CRYPTO PANDA 2025 ",
+                web_app=WebAppInfo(url=WEBAPP_URL)
+            )
+        ]]
+    )
     await message.answer(
         " BIENVENIDO!\n\n"
         " El tap-to-earn que va a ROMPER TON en 2025\n"
