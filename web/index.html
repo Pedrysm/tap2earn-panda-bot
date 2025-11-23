@@ -31,7 +31,7 @@
       flex-direction: column;
       justify-content: flex-end;
       align-items: center;
-      padding-bottom: 100px;
+      padding-bottom: 80px; /* Reducido para subir el contenido */
       z-index: 1000;
     }
 
@@ -51,7 +51,13 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(to bottom, transparent 30%, #000 95%);
+      /* Ajustado para oscurecer menos la parte superior y dejar ver el texto */
+      background: linear-gradient(to bottom, 
+        transparent 0%, 
+        transparent 40%, 
+        rgba(0, 0, 0, 0.3) 60%, 
+        rgba(0, 0, 0, 0.7) 80%, 
+        #000 95%);
     }
 
     .loading-content {
@@ -62,53 +68,48 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin-top: 40px; /* Espacio para que el texto de la imagen sea visible */
     }
 
-    .loading-text {
-      font-size: 22px;
-      color: #ffd700;
-      text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
-      margin-bottom: 25px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      animation: textGlow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes textGlow {
-      from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
-      to { text-shadow: 0 0 20px rgba(255, 215, 0, 1), 0 0 30px rgba(255, 215, 0, 0.6); }
+    .game-title {
+      font-size: 0; /* Ocultamos el texto HTML ya que está en la imagen */
+      color: transparent;
     }
 
     .progress-container {
       width: 280px;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       opacity: 1;
       transition: opacity 0.5s ease;
     }
 
     .progress-label {
-      font-size: 16px;
+      font-size: 18px;
       color: #ffd700;
-      margin-bottom: 8px;
-      text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+      margin-bottom: 12px;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
       font-weight: bold;
+      letter-spacing: 1px;
     }
 
     .progress-bar {
       width: 100%;
-      height: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+      box-shadow: 
+        0 0 15px rgba(255, 215, 0, 0.4),
+        inset 0 1px 3px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 215, 0, 0.3);
     }
 
     .progress-fill {
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700);
-      border-radius: 8px;
-      animation: loadProgress 5s ease-in-out forwards;
+      border-radius: 10px;
+      transition: width 0.1s linear;
       position: relative;
       overflow: hidden;
     }
@@ -120,13 +121,8 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes loadProgress {
-      0% { width: 0%; }
-      100% { width: 100%; }
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+      animation: shimmer 1.5s infinite;
     }
 
     @keyframes shimmer {
@@ -135,23 +131,27 @@
     }
 
     #startBtn {
-      padding: 16px 50px;
+      padding: 18px 55px;
       background: linear-gradient(135deg, #ffd700, #ffaa00);
       color: #000;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
       border: none;
-      border-radius: 40px;
+      border-radius: 45px;
       box-shadow: 
-        0 0 25px rgba(255, 215, 0, 0.6),
-        0 8px 15px rgba(0, 0, 0, 0.3);
+        0 0 30px rgba(255, 215, 0, 0.7),
+        0 10px 20px rgba(0, 0, 0, 0.4),
+        inset 0 1px 3px rgba(255, 255, 255, 0.4);
       cursor: pointer;
       position: relative;
       z-index: 2;
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(25px);
       transition: all 0.5s ease;
       animation: btnPulse 2s infinite;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     #startBtn.visible {
@@ -163,19 +163,35 @@
       0%, 100% { 
         transform: scale(1);
         box-shadow: 
-          0 0 25px rgba(255, 215, 0, 0.6),
-          0 8px 15px rgba(0, 0, 0, 0.3);
+          0 0 30px rgba(255, 215, 0, 0.7),
+          0 10px 20px rgba(0, 0, 0, 0.4);
       }
       50% { 
-        transform: scale(1.03);
+        transform: scale(1.05);
         box-shadow: 
-          0 0 35px rgba(255, 215, 0, 0.8),
-          0 12px 20px rgba(0, 0, 0, 0.4);
+          0 0 40px rgba(255, 215, 0, 0.9),
+          0 15px 25px rgba(0, 0, 0, 0.5);
       }
     }
 
     #startBtn:active {
       transform: scale(0.95);
+    }
+
+    /* Indicador de toque para móviles */
+    .tap-indicator {
+      position: absolute;
+      bottom: 120px;
+      color: rgba(255, 215, 0, 0.7);
+      font-size: 14px;
+      text-align: center;
+      animation: fadeInOut 3s infinite;
+      z-index: 2;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
     }
 
     /* Juego principal */
@@ -361,10 +377,18 @@
   </style>
 </head>
 <body>
+  <!-- Preloader oculto para la imagen -->
+  <div class="image-preloader">
+    <img src="https://i.ibb.co/396YRhyL/portada.jpg" alt="Preload">
+  </div>
+
   <!-- Pantalla de carga con imagen -->
   <div id="splash">
     <div class="background-image"></div>
     <div class="background-overlay"></div>
+    
+    <!-- Título del juego (oculto porque está en la imagen) -->
+    <div class="game-title">Crypto Panda</div>
     
     <div class="loading-content">
       <div class="progress-container" id="progressContainer">
@@ -375,6 +399,9 @@
       </div>
       
       <button id="startBtn">START GAME</button>
+      
+      <!-- Indicador para móviles -->
+      <div class="tap-indicator" id="tapIndicator">Tap to start</div>
     </div>
   </div>
 
@@ -417,51 +444,90 @@
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 Iniciando Crypto Panda...');
       
-      // Verificar carga de imagen
-      checkImageLoad();
+      // Ocultar el indicador de tap inicialmente
+      document.getElementById('tapIndicator').style.display = 'none';
       
-      // Iniciar la secuencia de carga
-      startLoadingSequence();
+      // Precargar la imagen primero y luego iniciar la secuencia
+      preloadImageAndStart();
       
       // Configurar botones
       document.getElementById('startBtn').addEventListener('click', startGame);
       document.getElementById('tapArea').addEventListener('click', handleTap);
     });
 
-    function checkImageLoad() {
+    function preloadImageAndStart() {
       const img = new Image();
+      const startTime = Date.now();
+      
       img.onload = function() {
-        console.log('✅ Imagen de portada cargada correctamente');
+        const loadTime = Date.now() - startTime;
+        console.log(`✅ Imagen cargada en ${loadTime}ms`);
+        
+        // Aplicar la imagen al fondo
         document.querySelector('.background-image').style.backgroundImage = 'url("https://i.ibb.co/396YRhyL/portada.jpg")';
+        
+        // Iniciar la secuencia de carga independientemente de cuándo cargó la imagen
+        startLoadingSequence();
       };
+      
       img.onerror = function() {
         console.log('❌ Error cargando la imagen de portada');
         // Usar un fondo de respaldo si la imagen falla
         document.querySelector('.background-image').style.background = 'linear-gradient(135deg, #1a0033, #000)';
+        startLoadingSequence();
       };
-      img.src = 'https://i.ibb.co/396YRhyL/portada.jpg';
+      
+      // Forzar la carga de la imagen
+      img.src = 'https://i.ibb.co/396YRhyL/portada.jpg?' + Date.now(); // Evitar cache
     }
 
     function startLoadingSequence() {
-      // Después de 5 segundos (duración de la animación de la barra), mostrar el botón
+      console.log('🔄 Iniciando secuencia de carga...');
+      
+      let progress = 0;
+      const progressFill = document.getElementById('progressFill');
+      const totalTime = 5000; // 5 segundos
+      const intervalTime = 50; // Actualizar cada 50ms
+      const steps = totalTime / intervalTime;
+      const increment = 100 / steps;
+      
+      // Iniciar la barra de progreso
+      const progressInterval = setInterval(() => {
+        progress += increment;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(progressInterval);
+          
+          // Cuando la barra llega al 100%, mostrar el botón
+          showStartButton();
+        }
+        progressFill.style.width = progress + '%';
+      }, intervalTime);
+    }
+
+    function showStartButton() {
+      const progressContainer = document.getElementById('progressContainer');
+      const startBtn = document.getElementById('startBtn');
+      const tapIndicator = document.getElementById('tapIndicator');
+      
+      console.log('🎯 Barra de carga completada, mostrando botón...');
+      
+      // Añadir efecto fade out a la barra de progreso
+      progressContainer.classList.add('fade-out');
+      
+      // Después del fade out, mostrar el botón y el indicador
       setTimeout(() => {
-        const progressContainer = document.getElementById('progressContainer');
-        const startBtn = document.getElementById('startBtn');
-        
-        // Añadir efecto fade out a la barra de progreso
-        progressContainer.classList.add('fade-out');
-        
-        // Después del fade out, mostrar el botón
-        setTimeout(() => {
-          progressContainer.style.display = 'none';
-          startBtn.classList.add('visible');
-        }, 500);
-        
-      }, 5000); // 5 segundos para la barra de carga
+        progressContainer.style.display = 'none';
+        startBtn.classList.add('visible');
+        tapIndicator.style.display = 'block';
+      }, 500);
     }
 
     function startGame() {
       console.log('🎮 Iniciando juego...');
+      
+      // Ocultar el indicador de tap
+      document.getElementById('tapIndicator').style.display = 'none';
       
       // Efecto de transición
       const splash = document.getElementById('splash');
