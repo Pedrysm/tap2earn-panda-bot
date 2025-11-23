@@ -7,25 +7,37 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { margin:0; overflow:hidden; background:#0a001f; color:white; font-family:sans-serif; }
+    body { margin:0; overflow:hidden; background:#000; color:white; }
     #panda { transition:transform .15s; }
     .tap { position:absolute; pointer-events:none; font-weight:bold; color:#ffd700; text-shadow:0 0 20px gold; animation:float 1s forwards; }
     @keyframes float { to { transform:translateY(-150px) scale(2); opacity:0; } }
+    .loading-bar { height:8px; background:#333; border-radius:4px; overflow:hidden; margin-top:20px; }
+    .loading-fill { height:100%; background:linear-gradient(90deg,#ffd700,#ffaa00); width:0%; animation:load 5s linear forwards; }
+    @keyframes load { to { width:100%; } }
+    .start-btn { animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.1); } }
   </style>
 </head>
-<body class="h-screen flex flex-col touch-manipulation">
+<body class="h-screen flex flex-col">
 
-  <!-- Pantalla de carga con tu panda épico -->
-  <div id="loading" class="flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-blue-950 to-black">
-    <img src="https://i.ibb.co/TYc7d9K/crypto-panda-epic.jpg" class="w-96 animate-pulse" alt="Crypto Panda 2025" />
-    <p class="mt-8 text-6xl font-bold text-yellow-400 animate-bounce">CRYPTO PANDA 2025</p>
+  <!-- PANTALLA DE CARGA ÉPICA -->
+  <div id="splash" class="flex-1 flex flex-col items-center justify-end bg-cover bg-center pb-20" style="background-image:url('https://i.ibb.co/w8pgDM6/crypto-panda-epic.jpg')">
+    
+    <div class="w-80 text-center">
+      <p class="text-5xl font-bold text-yellow-400 mb-2">loading</p>
+      <div class="loading-bar"><div class="loading-fill"></div></div>
+    </div>
+
+    <button id="startBtn" class="hidden mt-12 px-16 py-6 bg-gradient-to-r from-yellow-600 to-yellow-400 text-black text-5xl font-bold rounded-2xl shadow-2xl start-btn">
+      Start game
+    </button>
   </div>
 
-  <!-- Juego -->
-  <div id="game" class="flex-1 flex flex-col hidden">
-    <div class="p-4 text-center bg-black bg-opacity-70">
+  <!-- JUEGO -->
+  <div id="game" class="flex-1 flex flex-col hidden bg-gradient-to-b from-blue-950 to-black">
+    <div class="p-4 text-center">
       <div class="text-5xl font-bold" id="coins">0 $PANDA</div>
-      <div class="text-2xl mt-2" id="energy">6000 / 6000 ⚡️</div>
+      <div class="text-3xl mt-2" id="energy">6000 / 6000 ⚡️</div>
     </div>
 
     <div class="flex-1 flex items-center justify-center relative" id="tapArea">
@@ -33,11 +45,11 @@
     </div>
 
     <div class="fixed bottom-0 w-full bg-black bg-opacity-90 p-4 flex justify-around text-5xl">
-      <button onclick="alert('Próximamente')">🐼</button>
-      <button onclick="alert('Próximamente')">🚀</button>
-      <button onclick="alert('Daily Combo 10M pronto')">🎁</button>
-      <button onclick="alert('Referidos pronto')">👥</button>
-      <button onclick="alert('Liga semanal pronto')">🏆</button>
+      <button onclick="alert('Próximamente')">Panda</button>
+      <button onclick="alert('Próximamente')">Rocket</button>
+      <button onclick="alert('Daily Combo 10M pronto')">Gift</button>
+      <button onclick="alert('Referidos pronto')">Friends</button>
+      <button onclick="alert('Liga semanal pronto')">Trophy</button>
     </div>
   </div>
 
@@ -55,13 +67,21 @@
 
     let profile = { coins: 0, energy: 6000, max_energy: 6000, multitap: 1 }
 
-    async function init() {
+    setTimeout(() => {
+      document.getElementById('startBtn').classList.remove('hidden')
+    }, 5000)
+
+    document.getElementById('startBtn').onclick = async () => {
+      document.getElementById('splash').classList.add('hidden')
+      document.getElementById('game').classList.remove('hidden')
+      await initGame()
+    }
+
+    async function initGame() {
       const { data } = await supabase.from('profiles').select('*').eq('telegram_id', userId).maybeSingle()
       if (data) profile = data
       else await supabase.from('profiles').insert({ telegram_id: userId })
 
-      document.getElementById('loading').classList.add('hidden')
-      document.getElementById('game').classList.remove('hidden')
       updateUI()
       setInterval(recharge, 1000)
     }
@@ -99,8 +119,6 @@
         updateUI()
       }
     }
-
-    init()
   </script>
 </body>
 </html>
