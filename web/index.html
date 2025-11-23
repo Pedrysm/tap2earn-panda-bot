@@ -19,56 +19,163 @@
       touch-action: manipulation;
     }
 
-    /* Pantalla de carga */
+    /* Pantalla de carga mejorada */
     #splash {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #1a0033, #000);
+      background: #000;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-end;
       align-items: center;
+      padding-bottom: 120px;
       z-index: 1000;
     }
 
-    #loading {
-      font-size: 48px;
-      color: #ffd700;
-      text-shadow: 0 0 20px gold;
-      margin-bottom: 30px;
+    .background-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://ibb.co/fz6GD0YP') center/cover;
+      opacity: 0.9;
+    }
+
+    .background-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent 40%, #000 90%);
+    }
+
+    .loading-content {
+      position: relative;
+      z-index: 2;
       text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .loading-text {
+      font-size: 24px;
+      color: #ffd700;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+      margin-bottom: 30px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      animation: textGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes textGlow {
+      from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
+      to { text-shadow: 0 0 20px rgba(255, 215, 0, 1), 0 0 30px rgba(255, 215, 0, 0.6); }
+    }
+
+    .progress-container {
+      width: 320px;
+      margin-bottom: 25px;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .progress-label {
+      font-size: 18px;
+      color: #ffd700;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+      font-weight: bold;
     }
 
     .progress-bar {
-      width: 300px;
-      height: 20px;
-      background: #333;
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 30px;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
     }
 
     .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #ffd700, #ffaa00);
-      transition: width 0.3s ease;
+      background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700);
+      border-radius: 10px;
+      animation: loadProgress 5s ease-in-out forwards;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes loadProgress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
     }
 
     #startBtn {
-      padding: 20px 40px;
-      background: #ffd700;
+      padding: 20px 60px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
       color: #000;
-      font-size: 24px;
+      font-size: 28px;
       font-weight: bold;
       border: none;
-      border-radius: 25px;
+      border-radius: 50px;
+      box-shadow: 
+        0 0 30px rgba(255, 215, 0, 0.6),
+        0 10px 20px rgba(0, 0, 0, 0.3);
       cursor: pointer;
-      box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
-      transition: transform 0.2s;
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+      animation: btnPulse 2s infinite;
+    }
+
+    #startBtn.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes btnPulse {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 
+          0 0 30px rgba(255, 215, 0, 0.6),
+          0 10px 20px rgba(0, 0, 0, 0.3);
+      }
+      50% { 
+        transform: scale(1.05);
+        box-shadow: 
+          0 0 40px rgba(255, 215, 0, 0.8),
+          0 15px 30px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    #startBtn:hover {
+      transform: scale(1.05);
     }
 
     #startBtn:active {
@@ -188,11 +295,11 @@
       font-size: 48px;
       color: #ff4444;
       text-shadow: 0 0 20px red;
-      animation: pulse 0.5s infinite;
+      animation: comboPulse 0.5s infinite;
       display: none;
     }
 
-    @keyframes pulse {
+    @keyframes comboPulse {
       0%, 100% { transform: translateX(-50%) scale(1); }
       50% { transform: translateX(-50%) scale(1.2); }
     }
@@ -226,39 +333,60 @@
       transform: scale(0.9);
     }
 
-    /* Debug info */
-    #debug {
+    /* Efectos especiales */
+    .flash-overlay {
       position: fixed;
-      top: 10px;
-      left: 10px;
-      background: rgba(0, 0, 0, 0.8);
-      color: #00ff88;
-      padding: 10px;
-      border-radius: 5px;
-      font-size: 12px;
-      z-index: 1000;
-      display: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      animation: fadeFlash 0.3s ease-out;
+    }
+
+    @keyframes fadeFlash {
+      from { opacity: 0.6; }
+      to { opacity: 0; }
+    }
+
+    .fade-out {
+      animation: fadeOut 0.5s ease forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Debug info -->
-  <div id="debug"></div>
-
-  <!-- Pantalla de carga -->
+  <!-- Pantalla de carga con imagen -->
   <div id="splash">
-    <div id="loading">CRYPTO PANDA</div>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
+    <div class="background-image"></div>
+    <div class="background-overlay"></div>
+    
+    <div class="loading-content">
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-label">Loading</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      
+      <button id="startBtn">START GAME</button>
     </div>
-    <button id="startBtn" style="display: none;">START GAME</button>
   </div>
 
   <!-- Juego principal -->
   <div id="game">
     <div class="header">
       <div id="coins">0 $PANDA</div>
-      <div id="energy">6000 ⚡</div>
+      <div id="energy">6000 / 6000 ⚡</div>
     </div>
     
     <div id="tapArea">
@@ -291,45 +419,58 @@
 
     // ===== INICIALIZACIÓN =====
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('🚀 Iniciando juego...');
+      console.log('🚀 Iniciando Crypto Panda...');
       
-      // Simular progreso de carga
-      simulateLoading();
+      // Iniciar la secuencia de carga
+      startLoadingSequence();
       
       // Configurar botones
       document.getElementById('startBtn').addEventListener('click', startGame);
       document.getElementById('tapArea').addEventListener('click', handleTap);
-      
-      // Mostrar info de debug
-      showDebugInfo();
     });
 
-    function simulateLoading() {
-      let progress = 0;
-      const progressFill = document.getElementById('progressFill');
-      const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          document.getElementById('startBtn').style.display = 'block';
-          document.getElementById('loading').textContent = 'READY TO PLAY!';
-        }
-        progressFill.style.width = progress + '%';
-      }, 200);
+    function startLoadingSequence() {
+      // Después de 5 segundos (duración de la animación de la barra), mostrar el botón
+      setTimeout(() => {
+        const progressContainer = document.getElementById('progressContainer');
+        const startBtn = document.getElementById('startBtn');
+        
+        // Añadir efecto fade out a la barra de progreso
+        progressContainer.classList.add('fade-out');
+        
+        // Después del fade out, mostrar el botón
+        setTimeout(() => {
+          progressContainer.style.display = 'none';
+          startBtn.classList.add('visible');
+        }, 500);
+        
+      }, 5000); // 5 segundos para la barra de carga
     }
 
     function startGame() {
       console.log('🎮 Iniciando juego...');
-      document.getElementById('splash').style.display = 'none';
-      document.getElementById('game').style.display = 'flex';
       
-      // Iniciar sistemas del juego
-      startEnergyRegen();
-      updateDisplay();
+      // Efecto de transición
+      const splash = document.getElementById('splash');
+      splash.style.opacity = '1';
+      splash.style.transition = 'opacity 0.8s ease';
       
-      // Efecto de inicio
-      showFloatingText('START!', window.innerWidth / 2, window.innerHeight / 2);
+      setTimeout(() => {
+        splash.style.opacity = '0';
+        
+        setTimeout(() => {
+          splash.style.display = 'none';
+          document.getElementById('game').style.display = 'flex';
+          
+          // Efecto de entrada del juego
+          flashScreen();
+          showFloatingText('WELCOME!', window.innerWidth / 2, window.innerHeight / 2);
+          
+          // Iniciar sistemas del juego
+          startEnergyRegen();
+          updateDisplay();
+        }, 800);
+      }, 100);
     }
 
     function handleTap(event) {
@@ -359,6 +500,7 @@
       if (gameState.combo >= 10) {
         coinsEarned *= 3;
         createConfetti();
+        flashScreen();
       }
 
       gameState.coins += coinsEarned;
@@ -378,10 +520,18 @@
       floatingText.style.left = (x - 50) + 'px';
       floatingText.style.top = (y - 50) + 'px';
       
+      // Color diferente para mensajes de error
+      if (text.includes('NO ENERGY')) {
+        floatingText.style.color = '#ff4444';
+        floatingText.style.textShadow = '0 0 10px rgba(255, 68, 68, 0.8)';
+      }
+      
       document.body.appendChild(floatingText);
       
       setTimeout(() => {
-        document.body.removeChild(floatingText);
+        if (floatingText.parentNode) {
+          document.body.removeChild(floatingText);
+        }
       }, 1000);
     }
 
@@ -405,14 +555,28 @@
 
     function createConfetti() {
       // Confetti simple con emojis
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 15; i++) {
         setTimeout(() => {
-          showFloatingText('🎉', 
+          const emojis = ['🎉', '💰', '⭐', '🔥', '💎'];
+          const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+          showFloatingText(randomEmoji, 
             Math.random() * window.innerWidth, 
             Math.random() * window.innerHeight
           );
         }, i * 100);
       }
+    }
+
+    function flashScreen() {
+      const flash = document.createElement('div');
+      flash.className = 'flash-overlay';
+      document.body.appendChild(flash);
+      
+      setTimeout(() => {
+        if (flash.parentNode) {
+          document.body.removeChild(flash);
+        }
+      }, 300);
     }
 
     function startEnergyRegen() {
@@ -435,25 +599,16 @@
       showFloatingText(message, window.innerWidth / 2, window.innerHeight / 2);
     }
 
-    function showDebugInfo() {
-      const debug = document.getElementById('debug');
-      debug.style.display = 'block';
-      debug.innerHTML = `
-        Loaded: ✅<br>
-        Touch: ${'ontouchstart' in window ? '✅' : '❌'}<br>
-        Telegram: ${window.Telegram ? '✅' : '❌'}<br>
-        View: ${window.innerWidth}x${window.innerHeight}
-      `;
-      
-      setTimeout(() => {
-        debug.style.display = 'none';
-      }, 5000);
-    }
+    // Exportar funciones globales
+    window.showMessage = showMessage;
 
-    // Exportar para Telegram si está disponible
-    if (window.Telegram) {
+    // Integración con Telegram si está disponible
+    if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       console.log('✅ Telegram WebApp integrado');
+      
+      // Expandir la WebApp para ocupar toda la pantalla
+      window.Telegram.WebApp.expand();
     }
 
     console.log('🎯 Juego cargado y listo!');
