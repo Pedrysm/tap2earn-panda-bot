@@ -10,15 +10,15 @@ from aiohttp import web
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 WEBAPP_URL = "https://crypto-panda.pages.dev"  # TU WEBAPP VIVA
 
-# Webhook (para Render/Railway si lo usas después)
-WEBHOOK_HOST = os.getenv("RENDER_EXTERNAL_URL") or os.getenv("RAILWAY_STATIC_URL") or "localhost"
+# Webhook para Railway
+WEBHOOK_HOST = os.getenv("RAILWAY_STATIC_URL", "localhost")
 WEBHOOK_PATH = f"/webhook/{BOT_TOKEN.split(':')[1]}"
 WEBHOOK_URL = f"https://{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
-bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+bot = Bot(token=BOT_TOKEN)  # Sin parse_mode obsoleto
 dp = Dispatcher()
 
-# Botón que abre tu juego épico
+# Botón épico
 def webapp_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton("🐼 JUGAR CRYPTO PANDA 2025 🐼", web_app=types.WebAppInfo(url=WEBAPP_URL))
@@ -34,7 +34,6 @@ async def start(message: Message):
 🔥 Los primeros ya tienen +100 MILLONES
 
 ¡Toca el panda y conviértete en leyenda!"""
-
     await message.answer(welcome, reply_markup=webapp_keyboard(), disable_web_page_preview=True)
 
 async def on_startup(app):
