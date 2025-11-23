@@ -31,7 +31,7 @@
       flex-direction: column;
       justify-content: flex-end;
       align-items: center;
-      padding-bottom: 120px;
+      padding-bottom: 100px;
       z-index: 1000;
     }
 
@@ -41,8 +41,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: url('https://ibb.co/fz6GD0YP') center/cover;
-      opacity: 0.9;
+      background: url('https://i.ibb.co/fz6GD0YP/1000168793.jpg') center/cover no-repeat;
+      opacity: 1;
     }
 
     .background-overlay {
@@ -51,7 +51,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(to bottom, transparent 40%, #000 90%);
+      background: linear-gradient(to bottom, transparent 30%, #000 95%);
     }
 
     .loading-content {
@@ -65,12 +65,12 @@
     }
 
     .loading-text {
-      font-size: 24px;
+      font-size: 22px;
       color: #ffd700;
-      text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-      margin-bottom: 30px;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+      margin-bottom: 25px;
       font-weight: bold;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       animation: textGlow 2s ease-in-out infinite alternate;
     }
 
@@ -80,34 +80,34 @@
     }
 
     .progress-container {
-      width: 320px;
-      margin-bottom: 25px;
+      width: 280px;
+      margin-bottom: 20px;
       opacity: 1;
       transition: opacity 0.5s ease;
     }
 
     .progress-label {
-      font-size: 18px;
+      font-size: 16px;
       color: #ffd700;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+      margin-bottom: 8px;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
       font-weight: bold;
     }
 
     .progress-bar {
       width: 100%;
-      height: 12px;
+      height: 10px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
     }
 
     .progress-fill {
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700);
-      border-radius: 10px;
+      border-radius: 8px;
       animation: loadProgress 5s ease-in-out forwards;
       position: relative;
       overflow: hidden;
@@ -135,16 +135,16 @@
     }
 
     #startBtn {
-      padding: 20px 60px;
+      padding: 16px 50px;
       background: linear-gradient(135deg, #ffd700, #ffaa00);
       color: #000;
-      font-size: 28px;
+      font-size: 22px;
       font-weight: bold;
       border: none;
-      border-radius: 50px;
+      border-radius: 40px;
       box-shadow: 
-        0 0 30px rgba(255, 215, 0, 0.6),
-        0 10px 20px rgba(0, 0, 0, 0.3);
+        0 0 25px rgba(255, 215, 0, 0.6),
+        0 8px 15px rgba(0, 0, 0, 0.3);
       cursor: pointer;
       position: relative;
       z-index: 2;
@@ -163,19 +163,15 @@
       0%, 100% { 
         transform: scale(1);
         box-shadow: 
-          0 0 30px rgba(255, 215, 0, 0.6),
-          0 10px 20px rgba(0, 0, 0, 0.3);
+          0 0 25px rgba(255, 215, 0, 0.6),
+          0 8px 15px rgba(0, 0, 0, 0.3);
       }
       50% { 
-        transform: scale(1.05);
+        transform: scale(1.03);
         box-shadow: 
-          0 0 40px rgba(255, 215, 0, 0.8),
-          0 15px 30px rgba(0, 0, 0, 0.4);
+          0 0 35px rgba(255, 215, 0, 0.8),
+          0 12px 20px rgba(0, 0, 0, 0.4);
       }
-    }
-
-    #startBtn:hover {
-      transform: scale(1.05);
     }
 
     #startBtn:active {
@@ -199,14 +195,14 @@
     }
 
     #coins {
-      font-size: 32px;
+      font-size: 28px;
       color: #ffd700;
       text-shadow: 0 0 10px gold;
       margin-bottom: 5px;
     }
 
     #energy {
-      font-size: 18px;
+      font-size: 16px;
       color: #00ff88;
     }
 
@@ -220,16 +216,16 @@
     }
 
     #panda {
-      width: 280px;
-      height: 280px;
+      width: 250px;
+      height: 250px;
       background: linear-gradient(135deg, #fff, #eee);
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
       box-shadow: 
-        0 0 50px rgba(255, 215, 0, 0.5),
-        inset 0 0 50px rgba(0, 0, 0, 0.1);
+        0 0 40px rgba(255, 215, 0, 0.5),
+        inset 0 0 40px rgba(0, 0, 0, 0.1);
       transition: transform 0.1s;
       position: relative;
       overflow: hidden;
@@ -240,35 +236,35 @@
     #panda::after {
       content: '';
       position: absolute;
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       background: #000;
       border-radius: 50%;
-      top: 80px;
+      top: 70px;
     }
 
     #panda::before {
-      left: 70px;
+      left: 60px;
     }
 
     #panda::after {
-      right: 70px;
+      right: 60px;
     }
 
     /* Nariz */
     #panda .nose {
       position: absolute;
-      width: 30px;
-      height: 20px;
+      width: 25px;
+      height: 18px;
       background: #000;
       border-radius: 50%;
-      top: 140px;
+      top: 125px;
     }
 
     .floating-text {
       position: absolute;
       color: #ffd700;
-      font-size: 40px;
+      font-size: 36px;
       font-weight: bold;
       text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
       pointer-events: none;
@@ -282,7 +278,7 @@
         opacity: 1;
       }
       100% {
-        transform: translateY(-100px) scale(1.5);
+        transform: translateY(-80px) scale(1.3);
         opacity: 0;
       }
     }
@@ -292,7 +288,7 @@
       top: 20%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 48px;
+      font-size: 42px;
       color: #ff4444;
       text-shadow: 0 0 20px red;
       animation: comboPulse 0.5s infinite;
@@ -301,7 +297,7 @@
 
     @keyframes comboPulse {
       0%, 100% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.2); }
+      50% { transform: translateX(-50%) scale(1.15); }
     }
 
     .nav {
@@ -309,7 +305,7 @@
       bottom: 0;
       width: 100%;
       background: rgba(0, 0, 0, 0.9);
-      padding: 15px;
+      padding: 12px;
       display: flex;
       justify-content: space-around;
     }
@@ -317,15 +313,15 @@
     .nav-btn {
       background: #ffd700;
       color: #000;
-      width: 60px;
-      height: 60px;
+      width: 55px;
+      height: 55px;
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 24px;
+      font-size: 22px;
       cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
       transition: transform 0.2s;
     }
 
@@ -421,6 +417,9 @@
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 Iniciando Crypto Panda...');
       
+      // Verificar carga de imagen
+      checkImageLoad();
+      
       // Iniciar la secuencia de carga
       startLoadingSequence();
       
@@ -428,6 +427,20 @@
       document.getElementById('startBtn').addEventListener('click', startGame);
       document.getElementById('tapArea').addEventListener('click', handleTap);
     });
+
+    function checkImageLoad() {
+      const img = new Image();
+      img.onload = function() {
+        console.log('✅ Imagen de portada cargada correctamente');
+        document.querySelector('.background-image').style.backgroundImage = 'url("https://i.ibb.co/fz6GD0YP/1000168793.jpg")';
+      };
+      img.onerror = function() {
+        console.log('❌ Error cargando la imagen de portada');
+        // Podemos intentar con el enlace alternativo o usar un fondo de respaldo
+        document.querySelector('.background-image').style.background = 'linear-gradient(135deg, #1a0033, #000)';
+      };
+      img.src = 'https://i.ibb.co/fz6GD0YP/1000168793.jpg';
+    }
 
     function startLoadingSequence() {
       // Después de 5 segundos (duración de la animación de la barra), mostrar el botón
