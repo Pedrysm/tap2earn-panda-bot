@@ -1,6 +1,6 @@
 import os
-import logging
 import asyncio
+import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
@@ -13,7 +13,7 @@ dp = Dispatcher()
 
 def webapp_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(" JUGAR CRYPTO PANDA 2025 ", web_app=types.WebAppInfo(url=WEBAPP_URL))
+        InlineKeyboardButton(" JUGAR CRYPTO PANDA 2025 ", web_app=types.WebAppInfo(WEBAPP_URL))
     ]])
 
 @dp.message(Command("start"))
@@ -22,7 +22,7 @@ async def start(message: Message):
     welcome = f""" BIENVENIDO <b>{user.first_name or "Panda"}</b>!
 
  El tap-to-earn que va a ROMPER TON en 2025
- Token $PANDA con airdrop masivo confirmado
+ Token $PANDA · Airdrop masivo confirmado
  Los primeros ya tienen +100 MILLONES
 
 ¡Toca el panda y conviértete en leyenda!"""
