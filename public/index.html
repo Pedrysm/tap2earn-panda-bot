@@ -7,6 +7,20 @@
     <meta name="description" content="Evoluciona tu panda, colecciona skins únicas y compite en torneos épicos">
     <meta name="theme-color" content="#000000">
     
+    <!-- Content Security Policy para Telegram -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' https://telegram.org;
+        script-src 'self' 'unsafe-inline' https://telegram.org;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https: blob:;
+        connect-src 'self' https://telegram.org;
+        font-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'none';
+        frame-ancestors 'none';
+    ">
+    
     <!-- Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
@@ -115,9 +129,7 @@
 
             <!-- Main Content Area -->
             <main class="game-content">
-                <!-- Tab Content will be loaded here dynamically -->
                 <div id="tab-content" class="tab-content">
-                    <!-- Panda Tappable Épico -->
                     <div id="panda-container">
                         <div id="panda">
                             <div class="nose"></div>
@@ -150,7 +162,51 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- JavaScript con detección mejorada de Telegram -->
+    <script>
+    // ===== DETECCIÓN MEJORADA DE TELEGRAM =====
+    (function() {
+        console.log('🔍 Iniciando detección de Telegram Web App...');
+        
+        // Esperar a que Telegram Web App esté disponible
+        function waitForTelegram(callback) {
+            if (window.Telegram && window.Telegram.WebApp) {
+                callback();
+            } else {
+                setTimeout(() => waitForTelegram(callback), 100);
+            }
+        }
+        
+        waitForTelegram(function() {
+            console.log('✅ Telegram Web App detectado');
+            const tg = window.Telegram.WebApp;
+            
+            // Inicializar Telegram
+            tg.ready();
+            tg.expand();
+            
+            // Configurar tema
+            tg.setHeaderColor('#000000');
+            tg.setBackgroundColor('#000000');
+            
+            console.log('👤 Usuario:', tg.initDataUnsafe?.user);
+            console.log('🌐 Plataforma:', tg.platform);
+            console.log('📏 Viewport:', tg.viewportHeight, 'x', tg.viewportWidth);
+            
+            // Marcar que estamos en Telegram
+            window.isTelegram = true;
+        });
+        
+        // Fallback después de 3 segundos
+        setTimeout(() => {
+            if (!window.isTelegram) {
+                console.log('🌐 Modo navegador estándar');
+                window.isTelegram = false;
+            }
+        }, 3000);
+    })();
+    </script>
+    
     <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,93 +1,7 @@
-// ===== DETECCIÓN DE TELEGRAM WEB APP =====
-class TelegramIntegration {
-    constructor() {
-        this.tg = window.Telegram?.WebApp;
-        this.isTelegram = false;
-        this.userData = null;
-        
-        this.init();
-    }
-
-    init() {
-        if (this.tg) {
-            console.log('✅ Detectado Telegram Web App');
-            this.isTelegram = true;
-            this.setupTelegram();
-        } else {
-            console.log('🌐 Modo navegador normal');
-            this.setupFallback();
-        }
-    }
-
-    setupTelegram() {
-        // Inicializar Telegram Web App
-        this.tg.ready();
-        this.tg.expand(); // Expandir para pantalla completa
-        
-        // Obtener datos del usuario
-        this.userData = this.tg.initDataUnsafe?.user;
-        
-        console.log('👤 Usuario de Telegram:', this.userData);
-        
-        // Configurar tema
-        this.setupTheme();
-        
-        // Configurar eventos de Telegram
-        this.setupTelegramEvents();
-    }
-
-    setupTheme() {
-        // Sincronizar con el tema de Telegram
-        this.tg.setHeaderColor('#000000');
-        this.tg.setBackgroundColor('#000000');
-        
-        // Escuchar cambios de tema
-        this.tg.onEvent('themeChanged', this.updateTheme);
-        this.tg.onEvent('viewportChanged', this.updateViewport);
-    }
-
-    setupTelegramEvents() {
-        // Evento cuando se cierra la Web App
-        this.tg.onEvent('close', () => {
-            console.log('Web App cerrada');
-        });
-        
-        // Evento cuando se hace back
-        this.tg.onEvent('backButtonClicked', () => {
-            this.tg.close();
-        });
-    }
-
-    setupFallback() {
-        // Datos de prueba para desarrollo
-        this.userData = {
-            id: Math.floor(Math.random() * 1000000),
-            first_name: 'Jugador',
-            username: 'jugador_' + Date.now()
-        };
-        
-        console.log('🎮 Modo desarrollo activado');
-    }
-
-    getUserInfo() {
-        return this.userData;
-    }
-
-    isInTelegram() {
-        return this.isTelegram;
-    }
-
-    closeWebApp() {
-        if (this.isTelegram) {
-            this.tg.close();
-        }
-    }
-}
-
 // ===== CONFIGURACIÓN DEL JUEGO ÉPICO =====
 class CryptoPandaGame {
     constructor() {
-        this.telegram = new TelegramIntegration();
+        this.isTelegram = window.isTelegram || false;
         this.gameState = {
             coins: 0,
             energy: 6000,
@@ -99,20 +13,27 @@ class CryptoPandaGame {
             skinMultiplier: 1.0,
             levelMultiplier: 1.0,
             cardMultiplier: 1.0,
-            userId: this.telegram.getUserInfo()?.id || 'demo_user'
+            userId: this.generateUserId()
         };
 
+        console.log('🎮 Inicializando Crypto Panda...');
+        console.log('📱 En Telegram:', this.isTelegram);
+        
         this.init();
     }
 
+    generateUserId() {
+        if (this.isTelegram && window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+            return 'tg_' + window.Telegram.WebApp.initDataUnsafe.user.id;
+        }
+        return 'demo_' + Math.floor(Math.random() * 1000000);
+    }
+
     init() {
-        console.log('🎮 Inicializando Crypto Panda Épico...');
-        console.log('📱 Usuario:', this.telegram.getUserInfo());
-        
         // Precargar imagen y iniciar secuencia
         this.preloadImageAndStart();
         
-        // Configurar eventos
+        // Configurar eventos MEJORADO
         this.setupEventListeners();
         
         // Inicializar sistemas
@@ -120,17 +41,16 @@ class CryptoPandaGame {
     }
 
     async preloadImageAndStart() {
+        console.log('🖼️ Precargando imagen de portada...');
         const img = new Image();
-        const startTime = Date.now();
         
         img.onload = () => {
-            const loadTime = Date.now() - startTime;
-            console.log(`✅ Imagen cargada en ${loadTime}ms`);
+            console.log('✅ Imagen cargada correctamente');
             this.startLoadingSequence();
         };
         
         img.onerror = () => {
-            console.log('❌ Error cargando imagen, usando fondo alternativo');
+            console.log('⚠️  Usando fondo alternativo');
             document.querySelector('.background-image').style.background = 
                 'linear-gradient(135deg, #1a0033, #000)';
             this.startLoadingSequence();
@@ -140,23 +60,23 @@ class CryptoPandaGame {
     }
 
     startLoadingSequence() {
-        console.log('🔄 Iniciando secuencia de carga épica...');
+        console.log('🔄 Iniciando secuencia de carga...');
         
         let progress = 0;
         const progressFill = document.getElementById('progressFill');
-        const totalTime = 5000;
-        const intervalTime = 50;
+        const totalTime = 4000; // Reducido a 4 segundos
+        const intervalTime = 40;
         const steps = totalTime / intervalTime;
         const increment = 100 / steps;
         
         const progressInterval = setInterval(() => {
             progress += increment;
+            progressFill.style.width = progress + '%';
+            
             if (progress >= 100) {
-                progress = 100;
                 clearInterval(progressInterval);
                 this.showStartButton();
             }
-            progressFill.style.width = progress + '%';
         }, intervalTime);
     }
 
@@ -164,121 +84,97 @@ class CryptoPandaGame {
         const progressContainer = document.getElementById('progressContainer');
         const startBtn = document.getElementById('startBtn');
         
-        console.log('🎯 Mostrando botón de inicio épico...');
+        console.log('🎯 Mostrando botón START...');
         
-        progressContainer.classList.add('fade-out');
+        // Transición suave
+        progressContainer.style.opacity = '0';
+        progressContainer.style.transition = 'opacity 0.5s ease';
         
         setTimeout(() => {
             progressContainer.style.display = 'none';
-            startBtn.classList.add('visible');
+            startBtn.style.display = 'block';
             
-            // Enfocar el botón para mejor UX
-            startBtn.focus();
+            // Animación de aparición
+            setTimeout(() => {
+                startBtn.classList.add('visible');
+                console.log('✅ Botón START visible y listo');
+            }, 50);
         }, 500);
     }
 
     setupEventListeners() {
-        // Botón de inicio - MÚLTIPLES MÉTODOS para asegurar funcionamiento
         const startBtn = document.getElementById('startBtn');
         
-        // Método 1: click estándar
-        startBtn.addEventListener('click', (e) => {
-            console.log('🖱️ Click en botón START');
-            this.startGame();
-        });
+        console.log('🔧 Configurando eventos del botón START...');
         
-        // Método 2: touch para móviles
-        startBtn.addEventListener('touchstart', (e) => {
-            console.log('📱 Touch en botón START');
-            e.preventDefault();
+        // MÚLTIPLOS MÉTODOS para máxima compatibilidad
+        const startGameHandler = (event) => {
+            console.log('🎮 Intentando iniciar juego...', event.type);
+            event.preventDefault();
+            event.stopPropagation();
             this.startGame();
-        }, { passive: false });
+            return false;
+        };
+
+        // Eventos para desktop
+        startBtn.addEventListener('click', startGameHandler);
         
-        // Método 3: keypress para accesibilidad
-        startBtn.addEventListener('keypress', (e) => {
+        // Eventos para móvil
+        startBtn.addEventListener('touchstart', startGameHandler, { passive: false });
+        startBtn.addEventListener('touchend', (e) => e.preventDefault(), { passive: false });
+        
+        // Eventos para accesibilidad
+        startBtn.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-                console.log('⌨️ Tecla en botón START');
-                this.startGame();
+                startGameHandler(e);
             }
         });
 
-        // Área de tap del panda
+        // Panda tappable
         const panda = document.getElementById('panda');
-        panda.addEventListener('click', (e) => {
-            this.handleTap(e);
-        });
-        
+        panda.addEventListener('click', (e) => this.handleTap(e));
         panda.addEventListener('touchstart', (e) => {
             e.preventDefault();
             this.handleTap(e);
         }, { passive: false });
 
-        // Navegación por tabs
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                this.switchTab(e.currentTarget.dataset.tab);
-            });
-        });
-
-        // Botones de acción rápida
-        document.getElementById('dailyRewardBtn').addEventListener('click', () => {
-            this.showDailyReward();
-        });
+        console.log('✅ Todos los eventos configurados');
     }
 
     initGameSystems() {
-        // Inicializar sistemas del juego
         this.energySystem = new EnergySystem(this);
         this.comboSystem = new ComboSystem(this);
         this.effectSystem = new EffectSystem(this);
-        
-        console.log('⚡ Sistemas del juego inicializados');
     }
 
     startGame() {
-        console.log('🚀 Iniciando juego épico...');
+        console.log('🚀 INICIANDO JUEGO...');
         
-        // Deshabilitar el botón temporalmente para evitar múltiples clicks
         const startBtn = document.getElementById('startBtn');
         startBtn.disabled = true;
-        startBtn.textContent = 'CARGANDO...';
+        startBtn.textContent = '🎮 CARGANDO...';
+        startBtn.style.background = '#666';
         
-        // Ocultar splash screen con transición épica
+        // Transición épica
         const splash = document.getElementById('splash-screen');
-        splash.style.opacity = '1';
         splash.style.transition = 'opacity 0.8s ease';
+        splash.style.opacity = '0';
         
         setTimeout(() => {
-            splash.style.opacity = '0';
+            splash.style.display = 'none';
+            document.getElementById('main-game').style.display = 'flex';
             
-            setTimeout(() => {
-                splash.style.display = 'none';
-                document.getElementById('main-game').style.display = 'flex';
-                
-                // Efecto de entrada épico
-                this.effectSystem.flashScreen();
-                this.showFloatingText('¡BIENVENIDO!', window.innerWidth / 2, window.innerHeight / 2);
-                
-                // Iniciar sistemas en tiempo real
-                this.energySystem.start();
-                this.updateDisplay();
-                
-                console.log('🎉 Juego completamente cargado y listo!');
-                
-                // Enviar datos a Telegram si está en la app
-                if (this.telegram.isInTelegram()) {
-                    this.sendTelegramReady();
-                }
-            }, 800);
-        }, 100);
-    }
-
-    sendTelegramReady() {
-        // Notificar a Telegram que la app está lista
-        if (this.telegram.tg) {
-            this.telegram.tg.ready();
-            console.log('✅ Notificado a Telegram que la app está lista');
-        }
+            // Efectos de entrada
+            this.effectSystem.flashScreen();
+            this.showFloatingText('¡BIENVENIDO!', window.innerWidth / 2, window.innerHeight / 2);
+            
+            // Iniciar sistemas
+            this.energySystem.start();
+            this.updateDisplay();
+            
+            console.log('🎉 JUEGO INICIADO CORRECTAMENTE');
+            
+        }, 800);
     }
 
     handleTap(event) {
@@ -287,10 +183,9 @@ class CryptoPandaGame {
             return;
         }
 
-        // Consumir energía
-        this.gameState.energy -= 1;
+        this.gameState.energy--;
         
-        // Calcular combo épico
+        // Cálculo de combo
         const now = Date.now();
         if (now - this.gameState.lastTap < 500) {
             this.gameState.combo++;
@@ -299,235 +194,114 @@ class CryptoPandaGame {
         }
         this.gameState.lastTap = now;
 
-        // Calcular ganancia ÉPICA con múltiples multiplicadores
-        let baseEarn = this.gameState.tapPower;
-        let totalMultiplier = this.gameState.skinMultiplier * 
-                            this.gameState.levelMultiplier * 
-                            this.gameState.cardMultiplier;
-
-        // Bonus de combo progresivo
+        // Cálculo de recompensa
+        const baseEarn = this.gameState.tapPower;
+        const totalMultiplier = this.gameState.skinMultiplier * 
+                              this.gameState.levelMultiplier * 
+                              this.gameState.cardMultiplier;
         const comboBonus = Math.min(this.gameState.combo * 0.1, 3);
-        totalMultiplier *= (1 + comboBonus);
+        const coinsEarned = Math.floor(baseEarn * totalMultiplier * (1 + comboBonus));
 
-        const coinsEarned = Math.floor(baseEarn * totalMultiplier);
+        this.gameState.coins += coinsEarned;
 
-        // Efectos especiales basados en combo
-        if (this.gameState.combo >= 5) {
-            this.showCombo();
-        }
+        // Efectos
+        if (this.gameState.combo >= 5) this.showCombo();
         if (this.gameState.combo >= 10) {
             this.effectSystem.createConfetti();
             this.effectSystem.flashScreen();
         }
-        if (this.gameState.combo >= 20) {
-            this.effectSystem.createEpicExplosion(event.clientX, event.clientY);
-        }
 
-        this.gameState.coins += coinsEarned;
-
-        // Efectos visuales épicos
         this.showFloatingText('+' + coinsEarned, event.clientX, event.clientY);
         this.animatePanda();
         this.updateDisplay();
-
-        console.log(`💰 +${coinsEarned} monedas | Combo: ${this.gameState.combo}x | Energía: ${this.gameState.energy}`);
     }
 
     showFloatingText(text, x, y) {
-        const floatingText = document.createElement('div');
-        floatingText.className = 'floating-text';
-        floatingText.textContent = text;
-        floatingText.style.left = (x - 50) + 'px';
-        floatingText.style.top = (y - 50) + 'px';
+        const element = document.createElement('div');
+        element.className = 'floating-text';
+        element.textContent = text;
+        element.style.left = (x - 50) + 'px';
+        element.style.top = (y - 50) + 'px';
         
-        // Color diferente para mensajes especiales
         if (text.includes('SIN ENERGÍA')) {
-            floatingText.style.color = '#ff4444';
-            floatingText.style.textShadow = '0 0 10px rgba(255, 68, 68, 0.8)';
-        } else if (text.includes('+') && parseInt(text.replace('+', '')) > 50) {
-            floatingText.style.color = '#00ff88';
-            floatingText.style.textShadow = '0 0 10px rgba(0, 255, 136, 0.8)';
+            element.style.color = '#ff4444';
         }
         
-        document.body.appendChild(floatingText);
-        
-        setTimeout(() => {
-            if (floatingText.parentNode) {
-                document.body.removeChild(floatingText);
-            }
-        }, 1000);
+        document.body.appendChild(element);
+        setTimeout(() => element.remove(), 1000);
     }
 
     animatePanda() {
         const panda = document.getElementById('panda');
-        
-        // Animación de escala
         panda.style.transform = 'scale(0.9)';
-        
-        // Efecto de brillo en combo alto
-        if (this.gameState.combo >= 10) {
-            panda.style.boxShadow = 
-                '0 0 80px rgba(255, 215, 0, 0.8), inset 0 0 60px rgba(0, 0, 0, 0.1)';
-        }
-        
-        setTimeout(() => {
-            panda.style.transform = 'scale(1)';
-            if (this.gameState.combo < 10) {
-                panda.style.boxShadow = 
-                    '0 0 60px rgba(255, 215, 0, 0.6), inset 0 0 60px rgba(0, 0, 0, 0.1)';
-            }
-        }, 100);
+        setTimeout(() => panda.style.transform = 'scale(1)', 100);
     }
 
     showCombo() {
-        const comboDisplay = document.getElementById('comboDisplay');
-        comboDisplay.textContent = `COMBO x${this.gameState.combo}!`;
-        comboDisplay.style.display = 'block';
-        
-        // Cambiar color basado en el nivel de combo
-        if (this.gameState.combo >= 20) {
-            comboDisplay.style.background = 'linear-gradient(135deg, #ff00ff, #ff0080)';
-        } else if (this.gameState.combo >= 15) {
-            comboDisplay.style.background = 'linear-gradient(135deg, #00ffff, #0080ff)';
-        } else if (this.gameState.combo >= 10) {
-            comboDisplay.style.background = 'linear-gradient(135deg, #ffff00, #ff8000)';
-        }
-        
-        setTimeout(() => {
-            comboDisplay.style.display = 'none';
-        }, 1000);
+        const display = document.getElementById('comboDisplay');
+        display.textContent = `COMBO x${this.gameState.combo}!`;
+        display.style.display = 'block';
+        setTimeout(() => display.style.display = 'none', 1000);
     }
 
     updateDisplay() {
-        // Actualizar monedas
-        document.getElementById('playerCoins').textContent = 
-            this.gameState.coins.toLocaleString();
+        document.getElementById('playerCoins').textContent = this.gameState.coins.toLocaleString();
+        document.getElementById('energyText').textContent = `${this.gameState.energy}/${this.gameState.maxEnergy}`;
         
-        // Actualizar energía
-        document.getElementById('energyText').textContent = 
-            `${this.gameState.energy}/${this.gameState.maxEnergy}`;
-        
-        // Actualizar barra de energía
-        const energyFill = document.getElementById('energyFill');
         const energyPercent = (this.gameState.energy / this.gameState.maxEnergy) * 100;
-        energyFill.style.width = energyPercent + '%';
+        document.getElementById('energyFill').style.width = energyPercent + '%';
         
-        // Actualizar nivel
         document.getElementById('playerLevel').textContent = this.gameState.level;
-        
-        // Actualizar multiplicadores
-        document.getElementById('skinBoost').querySelector('.boost-value').textContent = 
-            this.gameState.skinMultiplier.toFixed(1) + 'x';
-        document.getElementById('levelBoost').querySelector('.boost-value').textContent = 
-            this.gameState.levelMultiplier.toFixed(1) + 'x';
-    }
-
-    switchTab(tabName) {
-        console.log(`Cambiando a tab: ${tabName}`);
-        
-        // Actualizar tabs activos
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        
-        // Aquí cargaríamos el contenido del tab
-        // Por ahora solo mostramos un mensaje
-        this.showFloatingText(`${tabName.toUpperCase()} pronto!`, 
-            window.innerWidth / 2, window.innerHeight / 2);
-    }
-
-    showDailyReward() {
-        this.showFloatingText('🎁 Recompensa Diaria Pronto!', 
-            window.innerWidth / 2, window.innerHeight / 2);
     }
 }
 
-// ===== SISTEMA DE ENERGÍA =====
+// Sistemas del juego (EnergySystem, ComboSystem, EffectSystem)...
 class EnergySystem {
     constructor(game) {
         this.game = game;
-        this.rechargeInterval = null;
     }
-
     start() {
-        // Recargar energía cada segundo
-        this.rechargeInterval = setInterval(() => {
+        setInterval(() => {
             if (this.game.gameState.energy < this.game.gameState.maxEnergy) {
-                this.game.gameState.energy += 1;
+                this.game.gameState.energy++;
                 this.game.updateDisplay();
             }
         }, 1000);
     }
-
-    stop() {
-        if (this.rechargeInterval) {
-            clearInterval(this.rechargeInterval);
-        }
-    }
 }
 
-// ===== SISTEMA DE COMBO =====
 class ComboSystem {
     constructor(game) {
         this.game = game;
-        this.comboTimeout = null;
-    }
-
-    resetCombo() {
-        this.game.gameState.combo = 0;
-        this.game.updateDisplay();
     }
 }
 
-// ===== SISTEMA DE EFECTOS VISUALES =====
 class EffectSystem {
     constructor(game) {
         this.game = game;
     }
-
     flashScreen() {
         const flash = document.createElement('div');
         flash.className = 'flash-overlay';
         document.body.appendChild(flash);
-        
-        setTimeout(() => {
-            if (flash.parentNode) {
-                document.body.removeChild(flash);
-            }
-        }, 300);
+        setTimeout(() => flash.remove(), 300);
     }
-
     createConfetti() {
-        // Confetti épico con múltiples emojis
-        const emojis = ['🎉', '💰', '⭐', '🔥', '💎', '🚀', '👑', '💯'];
-        
-        for (let i = 0; i < 20; i++) {
+        const emojis = ['🎉', '💰', '⭐', '🔥', '💎'];
+        for (let i = 0; i < 15; i++) {
             setTimeout(() => {
-                const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
                 this.game.showFloatingText(
-                    randomEmoji,
+                    emojis[Math.floor(Math.random() * emojis.length)],
                     Math.random() * window.innerWidth,
                     Math.random() * window.innerHeight
                 );
-            }, i * 50);
-        }
-    }
-
-    createEpicExplosion(x, y) {
-        // Efecto de explosión épica para combos altos
-        for (let i = 0; i < 8; i++) {
-            setTimeout(() => {
-                this.game.showFloatingText('💥', x, y);
             }, i * 100);
         }
     }
 }
 
-// ===== INICIALIZACIÓN DEL JUEGO =====
+// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar el juego épico
+    console.log('📄 DOM cargado, iniciando juego...');
     window.cryptoPandaGame = new CryptoPandaGame();
-    
-    console.log('🎮 Crypto Panda Épico completamente inicializado!');
 });

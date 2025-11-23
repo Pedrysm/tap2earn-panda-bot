@@ -3,27 +3,32 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware básico
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
+// Middleware para forzar HTTPS en producción
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV === 'production') {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
 
-// Health check para Railway
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Health check
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    message: 'Crypto Panda Server Running 🐼',
-    timestamp: new Date().toISOString(),
-    version: '2.0.0'
+    message: 'Crypto Panda HTTPS Ready 🚀',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
-// Ruta principal - servir el juego
+// Ruta principal
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Crypto Panda Épico ejecutándose en puerto ${PORT}`);
-  console.log(`🎮 Juego disponible en: http://localhost:${PORT}`);
-  console.log(`❤️  Health check: http://localhost:${PORT}/health`);
+  console.log(`🚀 Crypto Panda Server running on port ${PORT}`);
+  console.log(`🔒 HTTPS Ready: ${process.env.NODE_ENV === 'production' ? 'YES' : 'NO'}`);
 });
