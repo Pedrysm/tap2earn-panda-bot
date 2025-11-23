@@ -3,221 +3,460 @@
 <head>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Crypto Panda 2025</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <style>
-    *{margin:0;padding:0}
-    body,html{height:100%;overflow:hidden;background:#000;font-family:Impact,sans-serif}
-    #splash{height:100%;background:linear-gradient(135deg, #1a0033, #000);display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:140px}
-    #loading{font-size:70px;color:#ffd700;text-shadow:0 0 30px gold;margin-bottom:20px}
-    .bar{width:340px;height:16px;background:#333;border-radius:8px;overflow:hidden}
-    .fill{height:100%;width:0;background:linear-gradient(90deg,#ffd700,#ffaa00);animation:l 5s linear forwards}
-    @keyframes l{to{width:100%}}
-    #startBtn{display:none;margin-top:50px;padding:22px 80px;background:#ffd700;color:#000;font-size:52px;font-weight:bold;border:none;border-radius:40px;box-shadow:0 15px 40px #ffd70080;animation:p 1.5s infinite}
-    @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-    #game{display:none;height:100%;flex-direction:column;background:radial-gradient(circle at top,#1a0033,#000);color:white}
-    .header{text-align:center;padding:20px;background:#000000dd;border-bottom:4px solid #ffd700}
-    #coins{font-size:60px;text-shadow:0 0 20px gold}
-    #level{font-size:32px;color:#ffaa00}
-    #energy{font-size:36px}
-    #tapArea{flex:1;display:flex;justify-content:center;align-items:center;position:relative}
-    #panda{width:420px;filter:drop-shadow(0 0 40px #ffd700);cursor:pointer;transition:transform 0.1s}
-    .tap{position:absolute;color:#fff;font-size:100px;font-weight:900;text-shadow:0 0 30px gold;pointer-events:none;animation:t 1s forwards;z-index:99}
-    @keyframes t{to{transform:translateY(-200px) scale(3);opacity:0}}
-    .nav{position:fixed;bottom:0;width:100%;background:#000000ee;padding:20px 0;display:flex;justify-content:space-around;font-size:70px}
-    .nav button{background:#ffd700;color:#000;padding:20px;border-radius:50%;width:90px;height:90px;box-shadow:0 10px 30px #ffd70080;cursor:pointer}
-    .combo{font-size:80px;color:gold;position:absolute;top:20%;left:50%;transform:translateX(-50%);animation:pulse 1s infinite;display:none}
-    @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.3)}}
-    #skinSelector{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000ee;z-index:999;flex-direction:column;align-items:center;justify-content:center;color:white}
-    #skinSelector h2{font-size:40px;margin-bottom:20px}
-    #skinOptions{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
-    #skinSelector button{margin-top:40px;padding:20px 40px;background:#ffd700;color:#000;font-size:30px;border:none;border-radius:20px;cursor:pointer}
-    .flash-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:white;opacity:0;pointer-events:none;z-index:9999;animation:fadeFlash 0.3s ease-out}
-    @keyframes fadeFlash {
-      from { opacity: 0.6 }
-      to { opacity: 0 }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body, html {
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Arial', sans-serif;
+      touch-action: manipulation;
+    }
+
+    /* Pantalla de carga */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a0033, #000);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #loading {
+      font-size: 48px;
+      color: #ffd700;
+      text-shadow: 0 0 20px gold;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .progress-bar {
+      width: 300px;
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ffd700, #ffaa00);
+      transition: width 0.3s ease;
+    }
+
+    #startBtn {
+      padding: 20px 40px;
+      background: #ffd700;
+      color: #000;
+      font-size: 24px;
+      font-weight: bold;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
+      transition: transform 0.2s;
+    }
+
+    #startBtn:active {
+      transform: scale(0.95);
+    }
+
+    /* Juego principal */
+    #game {
+      display: none;
+      height: 100vh;
+      flex-direction: column;
+      background: radial-gradient(circle at center, #2a0044, #000);
+      color: white;
+    }
+
+    .header {
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.8);
+      border-bottom: 3px solid #ffd700;
+      text-align: center;
+    }
+
+    #coins {
+      font-size: 32px;
+      color: #ffd700;
+      text-shadow: 0 0 10px gold;
+      margin-bottom: 5px;
+    }
+
+    #energy {
+      font-size: 18px;
+      color: #00ff88;
+    }
+
+    #tapArea {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    #panda {
+      width: 280px;
+      height: 280px;
+      background: linear-gradient(135deg, #fff, #eee);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 
+        0 0 50px rgba(255, 215, 0, 0.5),
+        inset 0 0 50px rgba(0, 0, 0, 0.1);
+      transition: transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ojos del panda */
+    #panda::before,
+    #panda::after {
+      content: '';
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: #000;
+      border-radius: 50%;
+      top: 80px;
+    }
+
+    #panda::before {
+      left: 70px;
+    }
+
+    #panda::after {
+      right: 70px;
+    }
+
+    /* Nariz */
+    #panda .nose {
+      position: absolute;
+      width: 30px;
+      height: 20px;
+      background: #000;
+      border-radius: 50%;
+      top: 140px;
+    }
+
+    .floating-text {
+      position: absolute;
+      color: #ffd700;
+      font-size: 40px;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+      pointer-events: none;
+      z-index: 100;
+      animation: floatUp 1s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    .combo {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 48px;
+      color: #ff4444;
+      text-shadow: 0 0 20px red;
+      animation: pulse 0.5s infinite;
+      display: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.2); }
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 15px;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .nav-btn {
+      background: #ffd700;
+      color: #000;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+      transition: transform 0.2s;
+    }
+
+    .nav-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Debug info */
+    #debug {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ff88;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      z-index: 1000;
+      display: none;
     }
   </style>
 </head>
 <body>
+  <!-- Debug info -->
+  <div id="debug"></div>
 
+  <!-- Pantalla de carga -->
   <div id="splash">
     <div id="loading">CRYPTO PANDA</div>
-    <div class="bar"><div class="fill"></div></div>
-    <button id="startBtn">START GAME</button>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <button id="startBtn" style="display: none;">START GAME</button>
   </div>
 
+  <!-- Juego principal -->
   <div id="game">
     <div class="header">
       <div id="coins">0 $PANDA</div>
-      <div id="level">Level 1</div>
-      <div id="energy">6000 / 6000 ⚡</div>
+      <div id="energy">6000 ⚡</div>
     </div>
+    
     <div id="tapArea">
-      <img id="panda" src="https://i.ibb.co/hoodie-panda-base.png" alt="Crypto Panda">
-      <div id="combo" class="combo">COMBO x10!</div>
+      <div id="panda">
+        <div class="nose"></div>
+      </div>
+      <div class="combo" id="comboDisplay">COMBO!</div>
     </div>
+
     <div class="nav">
-      <button>🐼</button>
-      <button>🚀</button>
-      <button>🎁</button>
-      <button>👥</button>
-      <button onclick="openSkinSelector()">🎨</button>
+      <div class="nav-btn">🐼</div>
+      <div class="nav-btn">🚀</div>
+      <div class="nav-btn">🎁</div>
+      <div class="nav-btn">👥</div>
+      <div class="nav-btn" onclick="showMessage('Skins coming soon!')">🎨</div>
     </div>
   </div>
 
-  <div id="skinSelector">
-    <h2>Choose your Panda Skin</h2>
-    <div id="skinOptions"></div>
-    <button onclick="closeSkinSelector()">Close</button>
-  </div>
+  <script>
+    // ===== CONFIGURACIÓN SIMPLE =====
+    let gameState = {
+      coins: 0,
+      energy: 6000,
+      maxEnergy: 6000,
+      level: 1,
+      tapPower: 1,
+      combo: 0,
+      lastTap: 0
+    };
 
-  <script type="module">
-    import { showConfetti, flashScreen, bouncePanda, playSound, showFloatingText } from './fx.js'
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-    const supabase = createClient("https://mixbbsgniudsgcucyfwe.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk")
+    // ===== INICIALIZACIÓN =====
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🚀 Iniciando juego...');
+      
+      // Simular progreso de carga
+      simulateLoading();
+      
+      // Configurar botones
+      document.getElementById('startBtn').addEventListener('click', startGame);
+      document.getElementById('tapArea').addEventListener('click', handleTap);
+      
+      // Mostrar info de debug
+      showDebugInfo();
+    });
 
-    const tg = window.Telegram.WebApp; 
-    if (tg) tg.ready()
-    const userId = tg?.initDataUnsafe?.user?.id || 123456789
-    let profile = {coins:0,energy:6000,max_energy:6000,multitap:1,level:1,combo:0,panda_skin:'hoodie'}
-
-    // Mostrar botón START después de 3 segundos (en lugar de 5)
-    setTimeout(() => {
-      document.getElementById('startBtn').style.display = 'block'
-      document.getElementById('loading').textContent = 'READY!'
-    }, 3000)
-
-    document.getElementById('startBtn').onclick = () => {
-      document.getElementById('splash').style.display = 'none'
-      document.getElementById('game').style.display = 'flex'
-      init()
+    function simulateLoading() {
+      let progress = 0;
+      const progressFill = document.getElementById('progressFill');
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          document.getElementById('startBtn').style.display = 'block';
+          document.getElementById('loading').textContent = 'READY TO PLAY!';
+        }
+        progressFill.style.width = progress + '%';
+      }, 200);
     }
 
-    async function init(){
-      let {data} = await supabase.from('profiles').select('*').eq('telegram_id',userId).maybeSingle()
-      if(!data) {
-        await supabase.from('profiles').insert({
-          telegram_id:userId,
-          coins:0,
-          energy:6000,
-          max_energy:6000,
-          multitap:1,
-          level:1,
-          panda_skin:'hoodie'
-        })
+    function startGame() {
+      console.log('🎮 Iniciando juego...');
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('game').style.display = 'flex';
+      
+      // Iniciar sistemas del juego
+      startEnergyRegen();
+      updateDisplay();
+      
+      // Efecto de inicio
+      showFloatingText('START!', window.innerWidth / 2, window.innerHeight / 2);
+    }
+
+    function handleTap(event) {
+      if (gameState.energy <= 0) {
+        showFloatingText('NO ENERGY!', event.clientX, event.clientY);
+        return;
+      }
+
+      // Consumir energía
+      gameState.energy -= 1;
+      
+      // Calcular combo
+      const now = Date.now();
+      if (now - gameState.lastTap < 500) {
+        gameState.combo++;
       } else {
-        profile = data
+        gameState.combo = 1;
       }
-      update()
-      setInterval(recharge,1000)
+      gameState.lastTap = now;
+
+      // Calcular ganancia
+      let coinsEarned = gameState.tapPower;
+      if (gameState.combo >= 5) {
+        coinsEarned *= 2;
+        showCombo();
+      }
+      if (gameState.combo >= 10) {
+        coinsEarned *= 3;
+        createConfetti();
+      }
+
+      gameState.coins += coinsEarned;
+
+      // Efectos visuales
+      showFloatingText('+' + coinsEarned, event.clientX, event.clientY);
+      animatePanda();
+      updateDisplay();
+
+      console.log(`💰 +${coinsEarned} coins | Combo: ${gameState.combo}x | Energy: ${gameState.energy}`);
+    }
+
+    function showFloatingText(text, x, y) {
+      const floatingText = document.createElement('div');
+      floatingText.className = 'floating-text';
+      floatingText.textContent = text;
+      floatingText.style.left = (x - 50) + 'px';
+      floatingText.style.top = (y - 50) + 'px';
       
-      // Efecto de bienvenida
+      document.body.appendChild(floatingText);
+      
       setTimeout(() => {
-        showConfetti()
-        flashScreen()
-      }, 500)
+        document.body.removeChild(floatingText);
+      }, 1000);
     }
 
-    async function update(){
-      document.getElementById('coins').textContent = Number(profile.coins||0).toLocaleString() + ' $PANDA'
-      document.getElementById('level').textContent = 'Level ' + (profile.level||1)
-      document.getElementById('energy').textContent = (profile.energy||6000) + ' / ' + (profile.max_energy||6000) + ' ⚡'
-      if(profile.panda_skin){
-        const { data } = await supabase.from('panda_skins').select('image_url').eq('name', profile.panda_skin).maybeSingle()
-        if(data?.image_url) document.getElementById('panda').src = data.image_url
-      }
+    function animatePanda() {
+      const panda = document.getElementById('panda');
+      panda.style.transform = 'scale(0.9)';
+      setTimeout(() => {
+        panda.style.transform = 'scale(1)';
+      }, 100);
     }
 
-    let comboCount = 0
-    let lastTap = Date.now()
-
-    document.getElementById('tapArea').onclick = async e => {
-      if(profile.energy <= 0) {
-        showFloatingText('NO ENERGY!', e.clientX - 60, e.clientY - 120)
-        return
-      }
+    function showCombo() {
+      const comboDisplay = document.getElementById('comboDisplay');
+      comboDisplay.textContent = `COMBO x${gameState.combo}!`;
+      comboDisplay.style.display = 'block';
       
-      profile.energy--
-      const now = Date.now()
-      if(now - lastTap < 400) comboCount++
-      else comboCount = 1
-      lastTap = now
-
-      const earn = (profile.multitap||1) * (comboCount >= 10 ? 10 : 1)
-      profile.coins = Number(profile.coins) + earn
-
-      if(comboCount >= 10){
-        document.getElementById('combo').style.display = 'block'
-        showConfetti()
-        flashScreen()
-        playSound('combo')
-        setTimeout(()=>document.getElementById('combo').style.display='none',2000)
-      }
-
-      await supabase.from('profiles')
-        .update({
-          coins: profile.coins,
-          energy: profile.energy,
-          multitap: profile.multitap || 1
-        })
-        .eq('telegram_id', userId)
-
-      update()
-
-      showFloatingText('+' + earn, e.clientX - 60, e.clientY - 120)
-      bouncePanda()
+      setTimeout(() => {
+        comboDisplay.style.display = 'none';
+      }, 1000);
     }
 
-    function recharge(){
-      if(profile.energy < profile.max_energy){
-        profile.energy++
-        supabase.from('profiles')
-          .update({ energy: profile.energy })
-          .eq('telegram_id', userId)
-        update()
+    function createConfetti() {
+      // Confetti simple con emojis
+      for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+          showFloatingText('🎉', 
+            Math.random() * window.innerWidth, 
+            Math.random() * window.innerHeight
+          );
+        }, i * 100);
       }
     }
 
-    function openSkinSelector(){
-      document.getElementById('skinSelector').style.display = 'flex'
-      loadSkins()
+    function startEnergyRegen() {
+      setInterval(() => {
+        if (gameState.energy < gameState.maxEnergy) {
+          gameState.energy += 1;
+          updateDisplay();
+        }
+      }, 1000);
     }
 
-    function closeSkinSelector(){
-      document.getElementById('skinSelector').style.display = 'none'
+    function updateDisplay() {
+      document.getElementById('coins').textContent = 
+        gameState.coins.toLocaleString() + ' $PANDA';
+      document.getElementById('energy').textContent = 
+        gameState.energy + ' / ' + gameState.maxEnergy + ' ⚡';
     }
 
-    async function loadSkins(){
-      const { data } = await supabase.from('panda_skins').select('*')
-      const container = document.getElementById('skinOptions')
-      container.innerHTML = ''
-      data.forEach(skin => {
-        const btn = document.createElement('button')
-        btn.innerHTML = `
-          <img src="${skin.image_url}" style="width:120px;height:120px;object-fit:cover;border-radius:20px;border:2px solid #ffd700"><br>
-          <div style="margin-top:10px;font-size:16px">${skin.name}</div>
-        `
-        btn.style = 'background:#111;padding:15px;color:white;border:none;border-radius:20px;font-size:20px;cursor:pointer'
-        btn.onclick = () => selectSkin(skin.name, skin.image_url)
-        container.appendChild(btn)
-      })
+    function showMessage(message) {
+      showFloatingText(message, window.innerWidth / 2, window.innerHeight / 2);
     }
 
-    async function selectSkin(name, image){
-      await supabase.from('profiles')
-        .update({ panda_skin: name })
-        .eq('telegram_id', userId)
-      document.getElementById('panda').src = image
-      profile.panda_skin = name
-      closeSkinSelector()
-      showConfetti()
-      showFloatingText('Skin Updated!', window.innerWidth/2, window.innerHeight/2)
+    function showDebugInfo() {
+      const debug = document.getElementById('debug');
+      debug.style.display = 'block';
+      debug.innerHTML = `
+        Loaded: ✅<br>
+        Touch: ${'ontouchstart' in window ? '✅' : '❌'}<br>
+        Telegram: ${window.Telegram ? '✅' : '❌'}<br>
+        View: ${window.innerWidth}x${window.innerHeight}
+      `;
+      
+      setTimeout(() => {
+        debug.style.display = 'none';
+      }, 5000);
     }
 
-    // Hacer las funciones globales para los botones
-    window.openSkinSelector = openSkinSelector
-    window.closeSkinSelector = closeSkinSelector
+    // Exportar para Telegram si está disponible
+    if (window.Telegram) {
+      window.Telegram.WebApp.ready();
+      console.log('✅ Telegram WebApp integrado');
+    }
+
+    console.log('🎯 Juego cargado y listo!');
   </script>
 </body>
 </html>
