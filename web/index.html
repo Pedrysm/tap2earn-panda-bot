@@ -6,71 +6,20 @@
   <style>
     *{margin:0;padding:0}
     body,html{height:100%;overflow:hidden;background:#000}
-    #splash{
-      height:100%;
-      background:url('assets/portada.jpg') center/cover;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      align-items:center;
-      padding-bottom:140px
-    }
-    #loading{
-      font-size:70px;
-      color:#ffd700;
-      text-shadow:0 0 30px gold;
-      margin-bottom:20px
-    }
-    .bar{
-      width:340px;
-      height:16px;
-      background:#333;
-      border-radius:8px;
-      overflow:hidden
-    }
-    .fill{
-      height:100%;
-      width:0;
-      background:linear-gradient(90deg,#ffd700,#ffaa00);
-      animation:l 5s linear forwards
-    }
+    #splash{height:100%;background:url('assets/portada.jpg') center/cover;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:140px}
+    #loading{font-size:70px;color:#ffd700;text-shadow:0 0 30px gold;margin-bottom:20px}
+    .bar{width:340px;height:16px;background:#333;border-radius:8px;overflow:hidden}
+    .fill{height:100%;width:0;background:linear-gradient(90deg,#ffd700,#ffaa00);animation:l 5s linear forwards}
     @keyframes l{to{width:100%}}
-    #startBtn{
-      display:none;
-      margin-top:50px;
-      padding:22px 80px;
-      background:#ffd700;
-      color:#000;
-      font-size:52px;
-      font-weight:bold;
-      border:none;
-      border-radius:40px;
-      box-shadow:0 15px 40px #ffd70080;
-      animation:p 1.5s infinite
-    }
+    #startBtn{display:none;margin-top:50px;padding:22px 80px;background:#ffd700;color:#000;font-size:52px;font-weight:bold;border:none;border-radius:40px;box-shadow:0 15px 40px #ffd70080;animation:p 1.5s infinite}
     @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-    #game{
-      display:none;
-      height:100%;
-      flex-direction:column;
-      background:#0a001f;
-      color:white
-    }
+    #game{display:none;height:100%;flex-direction:column;background:#0a001f;color:white}
     .header{text-align:center;padding:20px;background:#000000bb}
     #coins{font-size:55px;font-weight:bold}
     #energy{font-size:35px;margin-top:10px}
     #tapArea{flex:1;display:flex;justify-content:center;align-items:center}
     #panda{width:360px}
-    .nav{
-      position:fixed;
-      bottom:0;
-      width:100%;
-      background:#000000ee;
-      padding:15px 0;
-      display:flex;
-      justify-content:space-around;
-      font-size:65px
-    }
+    .nav{position:fixed;bottom:0;width:100%;background:#000000ee;padding:15px 0;display:flex;justify-content:space-around;font-size:65px}
   </style>
 </head>
 <body>
@@ -87,20 +36,17 @@
       <div id="energy">6000 / 6000 ⚡</div>
     </div>
     <div id="tapArea"><img id="panda" src="https://i.ibb.co/hoodie-panda-base.png"></div>
-    <div class="nav">Panda Rocket Gift Friends Trophy</div>
+    <div class="nav">🐼🚀🎁👥🏆</div>
   </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
     const supabase = createClient("https://mixbbsgniudsgcucyfwe.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1peGJic2duaXVkc2djdWN5ZndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzI5MjYsImV4cCI6MjA3OTMwODkyNn0.7nFucL4SgTmktM1UPFl_xffu1CYvpG_RO-O6tGcM5jk")
+    
+    const tg = window.Telegram.WebApp; tg.ready()
+    const userId = BigInt(tg.initDataUnsafe?.user?.id || 123456789)
 
-    const tg = window.Telegram.WebApp
-    tg.ready()
-    const userId = tg.initDataUnsafe?.user?.id || 123456789
-
-    setTimeout(() => {
-      document.getElementById('startBtn').style.display = 'block'
-    }, 5000)
+    setTimeout(() => document.getElementById('startBtn').style.display = 'block', 5000)
 
     document.getElementById('startBtn').onclick = () => {
       document.getElementById('splash').style.display = 'none'
@@ -108,52 +54,22 @@
       initGame()
     }
 
-    function showError(message){
-      const splash = document.getElementById('splash')
-      splash.innerHTML = `
-        <div style="color:#ffd700;font-size:42px;text-align:center;padding:40px">
-          ⚠️ Error: ${message}<br><br>
-          Verifica conexión con Supabase o políticas RLS
-        </div>
-      `
-    }
-
     async function initGame(){
       try {
-        let { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('telegram_id', userId)
-          .maybeSingle()
-
-        if (error) throw error
-
-        if (!data) {
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({ telegram_id: userId, coins: 0, energy: 6000, max_energy: 6000 })
-
-          if (insertError) throw insertError
-
-          profile = { coins: 0, energy: 6000, max_energy: 6000 }
-        } else {
-          profile = data
-        }
-
+        let { data } = await supabase.from('profiles').select('*').eq('telegram_id', userId).maybeSingle()
+        if (!data) await supabase.from('profiles').insert({ telegram_id: userId, coins: 0, energy: 6000, max_energy: 6000 })
+        else profile = data
         updateUI()
         setInterval(recharge, 1000)
-      } catch (err) {
-        showError("No se pudo conectar con Supabase 🐼")
-        console.error("initGame error:", err)
-      }
-    }
-
-    function updateUI(){
-      document.getElementById('coins').textContent = Number(profile?.coins||0).toLocaleString() + ' $PANDA'
-      document.getElementById('energy').textContent = (profile?.energy||6000) + ' / ' + (profile?.max_energy||6000) + ' ⚡'
+      } catch (e) { alert("Error Supabase: " + e.message) }
     }
 
     let profile = {coins:0,energy:6000,max_energy:6000}
+
+    function updateUI(){
+      document.getElementById('coins').textContent = Number(profile.coins||0).toLocaleString() + ' $PANDA'
+      document.getElementById('energy').textContent = (profile.energy||6000) + ' / ' + (profile.max_energy||6000) + ' ⚡'
+    }
 
     document.getElementById('tapArea').onclick = async e => {
       if(profile.energy <= 0) return
@@ -170,7 +86,6 @@
       fx.style.fontSize = '90px'
       fx.style.color = '#ffd700'
       fx.style.fontWeight = 'bold'
-      fx.style.pointerEvents = 'none'
       document.body.appendChild(fx)
       setTimeout(() => fx.remove(), 1000)
 
