@@ -1,126 +1,483 @@
-/* Splash Screen Styles - Crypto Panda (optimizado) */
-:root{
-  --gold: #d4af37;
-  --overlay: rgba(0,0,0,0.35);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Reset básico */
-html,body,#app{height:100%;margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:#0b0b0f;color:#fff}
-.screen{position:relative;width:100%;height:100%}
-.hidden{display:none}
-
-/* Contenedor splash */
-#splash-screen{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
-  overflow:hidden;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0b0b0f;
+    color: white;
+    overflow: hidden;
 }
 
-/* Imagen de fondo (usa tu PNG, aplicada desde JS al cargar) */
-.background-image{
-  position:absolute;
-  inset:0;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-size:cover;
-  z-index:0;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  filter: none; /* sin blur para máxima nitidez */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all 0.5s ease;
 }
 
-/* Overlay sutil para legibilidad */
-.background-overlay{
-  position:absolute;
-  inset:0;
-  background:var(--overlay);
-  z-index:1;
+.hidden {
+    opacity: 0;
+    visibility: hidden;
 }
 
-/* Área de carga posicionada hacia abajo */
-.loading-content{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:8%;
-  z-index:2;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:14px;
-  padding:0 12px;
-  pointer-events:none; /* evita interferir hasta que el botón aparezca */
+.active {
+    opacity: 1;
+    visibility: visible;
 }
 
-/* Contenedor de progreso */
-.progress-container{width:90%;max-width:720px}
-
-/* Barra de progreso */
-.progress-bar{
-  width:100%;
-  height:12px;
-  background:rgba(255,255,255,0.06);
-  border-radius:999px;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.35);
-}
-.progress-fill{
-  width:0%;
-  height:100%;
-  background:linear-gradient(90deg,var(--gold),#ffd966);
-  transition:width 300ms ease;
-  border-radius:999px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.45);
+/* SPLASH SCREEN */
+#splash-screen {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Ocultamos etiquetas de carga innecesarias (las puedes activar si quieres) */
-.progress-label, .loading-text { display:none; }
-
-/* Botón START GAME (inicialmente oculto; JS lo mostrará) */
-.start-button{
-  display:none;
-  pointer-events:auto;
-  padding:10px 22px;
-  border-radius:999px;
-  background:linear-gradient(90deg,var(--gold),#ffd966);
-  color:#0b0b0f;
-  font-weight:700;
-  border:none;
-  cursor:pointer;
-  box-shadow:0 8px 24px rgba(0,0,0,0.45);
-  font-size:16px;
+.background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
 }
 
-/* Estilos cuando el botón está visible (clase inline o estilo directo desde JS) */
-.start-button.visible{
-  display:inline-block;
-  animation: float 2s ease-in-out infinite;
+.background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
 }
 
-/* Animación sutil */
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-6px)}
+.loading-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    width: 80%;
+    max-width: 400px;
 }
 
-/* Ocultar main-game inicial */
-#main-game.hidden{opacity:0;visibility:hidden}
-
-/* Transición suave entre pantallas */
-.screen{transition:opacity 0.6s ease, visibility 0.6s ease}
-
-/* Responsive */
-@media (max-width:480px){
-  .progress-container{width:92%}
-  .start-button{font-size:15px;padding:9px 18px}
+.progress-container {
+    margin: 30px 0;
 }
 
-/* Placeholder para tus estilos existentes */
-.game-header{ /* ... */ }
-.nav-tabs{ /* ... */ }
-/* etc. */
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f);
+    border-radius: 8px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.start-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.start-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* MAIN GAME LAYOUT */
+#main-game {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* HEADER */
+.game-header {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-bottom: 2px solid #333;
+}
+
+.stats-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.stat-icon {
+    font-size: 20px;
+}
+
+/* NAVIGATION */
+.game-navigation {
+    display: flex;
+    background: rgba(0, 0, 0, 0.9);
+    border-bottom: 1px solid #333;
+}
+
+.nav-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: white;
+    padding: 12px 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    border-right: 1px solid #333;
+}
+
+.nav-btn:last-child {
+    border-right: none;
+}
+
+.nav-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-weight: bold;
+}
+
+.nav-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* MAIN CONTENT */
+.game-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.tab-content {
+    height: 100%;
+    position: relative;
+}
+
+.tab-pane {
+    display: none;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* TAP TAB */
+#tap-tab {
+    padding: 0;
+    position: relative;
+}
+
+#panda-container {
+    width: 100%;
+    height: 100%;
+}
+
+.tap-stats {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.tap-stats div {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+/* SHOP STYLES */
+.shop-container, .clans-container, .cards-container, .achievements-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.skins-grid, .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.skin-item, .card-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.skin-item:hover, .card-item:hover {
+    transform: translateY(-5px);
+}
+
+.skin-item.owned {
+    border-color: #6bcf7f;
+}
+
+.skin-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+.card-image {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.skin-info h4, .card-info h5 {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.skin-price, .card-price {
+    color: #ffd93d;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.skin-action-btn, .card-action-btn {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.skin-action-btn.buy {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.skin-action-btn.equip {
+    background: #6bcf7f;
+    color: white;
+}
+
+.skin-action-btn:hover {
+    transform: scale(1.05);
+}
+
+/* CLANS STYLES */
+.clan-features {
+    text-align: center;
+}
+
+.clan-features h4 {
+    margin-bottom: 15px;
+    color: #ffd93d;
+}
+
+.clan-features ul {
+    list-style: none;
+    margin: 20px 0;
+    text-align: left;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.clan-features li {
+    margin: 10px 0;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.clan-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.action-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.action-btn:hover {
+    transform: scale(1.05);
+}
+
+/* ACHIEVEMENTS STYLES */
+.achievement-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 15px;
+    margin: 10px 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.achievement-item.completed {
+    border-color: #6bcf7f;
+}
+
+.achievement-item.locked {
+    opacity: 0.6;
+}
+
+.achievement-icon {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+.achievement-info {
+    flex: 1;
+    text-align: left;
+}
+
+.achievement-info h5 {
+    margin-bottom: 5px;
+    color: #ffd93d;
+}
+
+.achievement-info p {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.achievement-reward {
+    color: #6bcf7f;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.achievement-status {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.achievement-item.completed .achievement-status {
+    color: #6bcf7f;
+}
+
+.achievement-item.locked .achievement-status {
+    color: #ff6b6b;
+}
+
+/* FOOTER */
+.game-footer {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    border-top: 1px solid #333;
+}
+
+.quick-stats {
+    display: flex;
+    justify-content: space-around;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .stats-bar {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .stat {
+        font-size: 14px;
+    }
+    
+    .nav-btn {
+        font-size: 10px;
+        padding: 10px 2px;
+    }
+    
+    .skins-grid, .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .skin-image {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* ANIMATIONS */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
