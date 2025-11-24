@@ -1,543 +1,126 @@
-/* Reset y base épica */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+/* Splash Screen Styles - Crypto Panda (optimizado) */
+:root{
+  --gold: #d4af37;
+  --overlay: rgba(0,0,0,0.35);
 }
 
-body, html {
-  height: 100%;
-  overflow: hidden;
-  background: #000;
-  font-family: 'Arial', sans-serif;
-  touch-action: manipulation;
-  color: white;
+/* Reset básico */
+html,body,#app{height:100%;margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:#0b0b0f;color:#fff}
+.screen{position:relative;width:100%;height:100%}
+.hidden{display:none}
+
+/* Contenedor splash */
+#splash-screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  overflow:hidden;
 }
 
-/* Pantalla de carga ÉPICA */
-#splash-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  padding-bottom: 80px;
-  z-index: 1000;
+/* Imagen de fondo (usa tu PNG, aplicada desde JS al cargar) */
+.background-image{
+  position:absolute;
+  inset:0;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:cover;
+  z-index:0;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter: none; /* sin blur para máxima nitidez */
 }
 
-.background-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('https://i.ibb.co/396YRhyL/portada.jpg') center/cover no-repeat;
-  opacity: 1;
+/* Overlay sutil para legibilidad */
+.background-overlay{
+  position:absolute;
+  inset:0;
+  background:var(--overlay);
+  z-index:1;
 }
 
-.background-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, 
-    transparent 0%, 
-    transparent 40%, 
-    rgba(0, 0, 0, 0.3) 60%, 
-    rgba(0, 0, 0, 0.7) 80%, 
-    #000 95%);
+/* Área de carga posicionada hacia abajo */
+.loading-content{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:8%;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  padding:0 12px;
+  pointer-events:none; /* evita interferir hasta que el botón aparezca */
 }
 
-.loading-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 40px;
+/* Contenedor de progreso */
+.progress-container{width:90%;max-width:720px}
+
+/* Barra de progreso */
+.progress-bar{
+  width:100%;
+  height:12px;
+  background:rgba(255,255,255,0.06);
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.35);
+}
+.progress-fill{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),#ffd966);
+  transition:width 300ms ease;
+  border-radius:999px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.45);
 }
 
-.progress-container {
-  width: 300px;
-  margin-bottom: 25px;
-  opacity: 1;
-  transition: opacity 0.5s ease;
+/* Ocultamos etiquetas de carga innecesarias (las puedes activar si quieres) */
+.progress-label, .loading-text { display:none; }
+
+/* Botón START GAME (inicialmente oculto; JS lo mostrará) */
+.start-button{
+  display:none;
+  pointer-events:auto;
+  padding:10px 22px;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--gold),#ffd966);
+  color:#0b0b0f;
+  font-weight:700;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,0.45);
+  font-size:16px;
 }
 
-.progress-label {
-  font-size: 18px;
-  color: #ffd700;
-  margin-bottom: 12px;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-  font-weight: bold;
-  letter-spacing: 1px;
+/* Estilos cuando el botón está visible (clase inline o estilo directo desde JS) */
+.start-button.visible{
+  display:inline-block;
+  animation: float 2s ease-in-out infinite;
 }
 
-.progress-bar {
-  width: 100%;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 
-    0 0 15px rgba(255, 215, 0, 0.4),
-    inset 0 1px 3px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 215, 0, 0.3);
+/* Animación sutil */
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
 }
 
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700);
-  border-radius: 10px;
-  transition: width 0.1s linear;
-  position: relative;
-  overflow: hidden;
-}
+/* Ocultar main-game inicial */
+#main-game.hidden{opacity:0;visibility:hidden}
 
-.progress-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-.start-button {
-  padding: 18px 60px;
-  background: linear-gradient(135deg, #ffd700, #ffaa00);
-  color: #000;
-  font-size: 24px;
-  font-weight: bold;
-  border: none;
-  border-radius: 45px;
-  box-shadow: 
-    0 0 30px rgba(255, 215, 0, 0.7),
-    0 10px 20px rgba(0, 0, 0, 0.4),
-    inset 0 1px 3px rgba(255, 255, 255, 0.4);
-  cursor: pointer;
-  position: relative;
-  z-index: 2;
-  opacity: 0;
-  transform: translateY(25px);
-  transition: all 0.5s ease;
-  animation: btnPulse 2s infinite;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.start-button.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@keyframes btnPulse {
-  0%, 100% { 
-    transform: scale(1);
-    box-shadow: 
-      0 0 30px rgba(255, 215, 0, 0.7),
-      0 10px 20px rgba(0, 0, 0, 0.4);
-  }
-  50% { 
-    transform: scale(1.05);
-    box-shadow: 
-      0 0 40px rgba(255, 215, 0, 0.9),
-      0 15px 25px rgba(0, 0, 0, 0.5);
-  }
-}
-
-.game-features {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.feature-item {
-  color: #ffd700;
-  font-size: 14px;
-  text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
-  animation: featureGlow 3s infinite alternate;
-}
-
-@keyframes featureGlow {
-  from { opacity: 0.7; }
-  to { opacity: 1; }
-}
-
-/* Juego Principal - Versión EPICA */
-#main-game {
-  display: none;
-  height: 100vh;
-  flex-direction: column;
-  background: radial-gradient(circle at center, #1a0033, #000);
-  position: relative;
-}
-
-/* Header Épico */
-.game-header {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 0, 51, 0.9));
-  padding: 15px;
-  border-bottom: 3px solid #ffd700;
-  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
-}
-
-.player-main-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.level-badge {
-  background: linear-gradient(135deg, #ffd700, #ff6b00);
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: #000;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-  border: 2px solid #fff;
-}
-
-.player-resources {
-  display: flex;
-  gap: 15px;
-}
-
-.resource-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 215, 0, 0.3);
-}
-
-.resource-icon {
-  font-size: 18px;
-}
-
-.resource-symbol {
-  color: #ffd700;
-  font-weight: bold;
-}
-
-.energy-container {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 215, 0, 0.3);
-}
-
-.energy-fill {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, #00ff88, #00cc66);
-  transition: width 0.3s ease;
-}
-
-.quick-actions {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.action-btn {
-  background: linear-gradient(135deg, #ffd700, #ffaa00);
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(255, 215, 0, 0.4);
-  transition: transform 0.2s;
-}
-
-.action-btn:active {
-  transform: scale(0.9);
-}
-
-/* Navegación Épica */
-.game-navigation {
-  background: rgba(0, 0, 0, 0.8);
-  padding: 10px;
-  border-bottom: 2px solid #ffd700;
-}
-
-.nav-tabs {
-  display: flex;
-  justify-content: space-around;
-}
-
-.nav-tab {
-  background: transparent;
-  border: none;
-  color: #ffd700;
-  padding: 10px 5px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  min-width: 60px;
-}
-
-.nav-tab.active {
-  background: rgba(255, 215, 0, 0.2);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-}
-
-.tab-icon {
-  font-size: 20px;
-}
-
-.tab-text {
-  font-size: 10px;
-  font-weight: bold;
-}
-
-/* Área de Juego Principal */
-.game-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  position: relative;
-}
-
-/* Panda Tappable Épico */
-#panda {
-  width: 280px;
-  height: 280px;
-  background: linear-gradient(135deg, #fff, #eee);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 
-    0 0 60px rgba(255, 215, 0, 0.6),
-    inset 0 0 60px rgba(0, 0, 0, 0.1);
-  transition: transform 0.1s;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  border: 4px solid #ffd700;
-}
-
-/* Ojos del Panda */
-#panda::before,
-#panda::after {
-  content: '';
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  background: #000;
-  border-radius: 50%;
-  top: 80px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-#panda::before {
-  left: 65px;
-}
-
-#panda::after {
-  right: 65px;
-}
-
-/* Brillos en los ojos */
-#panda::before::after,
-#panda::after::after {
-  content: '';
-  position: absolute;
-  width: 15px;
-  height: 15px;
-  background: white;
-  border-radius: 50%;
-  top: 10px;
-  left: 10px;
-}
-
-/* Nariz */
-#panda .nose {
-  position: absolute;
-  width: 30px;
-  height: 20px;
-  background: #000;
-  border-radius: 50%;
-  top: 140px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-/* Texto Flotante Mejorado */
-.floating-text {
-  position: absolute;
-  color: #ffd700;
-  font-size: 40px;
-  font-weight: bold;
-  text-shadow: 
-    0 0 10px rgba(255, 215, 0, 0.8),
-    0 0 20px rgba(255, 215, 0, 0.6);
-  pointer-events: none;
-  z-index: 100;
-  animation: floatUpEpic 1s ease-out forwards;
-}
-
-@keyframes floatUpEpic {
-  0% {
-    transform: translateY(0) scale(1) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-120px) scale(1.5) rotate(5deg);
-    opacity: 0;
-  }
-}
-
-/* Combo Display Épico */
-.combo-display {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #ff4444, #ff0000);
-  padding: 15px 30px;
-  border-radius: 25px;
-  font-size: 32px;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-  box-shadow: 
-    0 0 30px rgba(255, 0, 0, 0.6),
-    inset 0 1px 3px rgba(255, 255, 255, 0.4);
-  display: none;
-  animation: comboPulse 0.5s infinite;
-  border: 2px solid #fff;
-}
-
-@keyframes comboPulse {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.1); }
-}
-
-/* Footer con Boosters */
-.game-footer {
-  background: rgba(0, 0, 0, 0.9);
-  padding: 15px;
-  border-top: 2px solid #ffd700;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.boost-indicators {
-  display: flex;
-  gap: 10px;
-}
-
-.boost-item {
-  background: rgba(255, 215, 0, 0.2);
-  padding: 8px 12px;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-}
-
-.boost-value {
-  color: #ffd700;
-  font-weight: bold;
-  font-size: 12px;
-}
-
-/* Efectos Especiales */
-.flash-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: white;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 9999;
-  animation: fadeFlash 0.3s ease-out;
-}
-
-@keyframes fadeFlash {
-  from { opacity: 0.6; }
-  to { opacity: 0; }
-}
-
-.fade-out {
-  animation: fadeOut 0.5s ease forwards;
-}
-
-@keyframes fadeOut {
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-}
+/* Transición suave entre pantallas */
+.screen{transition:opacity 0.6s ease, visibility 0.6s ease}
 
 /* Responsive */
-@media (max-width: 480px) {
-  .progress-container {
-    width: 280px;
-  }
-  
-  .start-button {
-    padding: 16px 50px;
-    font-size: 20px;
-  }
-  
-  #panda {
-    width: 250px;
-    height: 250px;
-  }
-  
-  .player-resources {
-    gap: 8px;
-  }
-  
-  .resource-item {
-    padding: 6px 10px;
-    font-size: 14px;
-  }
+@media (max-width:480px){
+  .progress-container{width:92%}
+  .start-button{font-size:15px;padding:9px 18px}
 }
+
+/* Placeholder para tus estilos existentes */
+.game-header{ /* ... */ }
+.nav-tabs{ /* ... */ }
+/* etc. */

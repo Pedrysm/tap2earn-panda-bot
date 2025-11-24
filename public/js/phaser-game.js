@@ -13,12 +13,12 @@ class TapScene extends Phaser.Scene {
   async preload() {
     const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345
     const { data } = await supabase
-      .from('profiles')
+      .from('user_stats')
       .select('equipped_skin')
       .eq('telegram_id', userId)
       .single()
 
-    const skinFile = data?.equipped_skin || 'panda1.png'
+    const skinFile = data?.equipped_skin || '../assets/skins/panda1.png'
     const skinUrl = `https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/${skinFile}`
     this.load.image('panda', skinUrl)
     this.load.image('star', 'https://cdn.jsdelivr.net/npm/phaser@3/examples/assets/particles/yellow.png')
