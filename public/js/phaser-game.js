@@ -1,64 +1,104 @@
-// Configuración de Supabase
-const SUPABASE_URL = 'https://vrbxeerfvoaukcopydpt.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyYnhlZXJmdm9hdWtjb3B5ZHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjU2MTksImV4cCI6MjAzNzUwMTYxOX0.7M7Hce-E1pXr_ldc6dMMT2rJp5jWY6kU-2jQ5q1x1kE';
-
-window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-window.gameState = {
-    coins: 0,
-    gems: 0,
-    level: 1,
-    experience: 0,
-    energy: 100,
-    maxEnergy: 100,
-    totalTaps: 0,
-    currentMultiplier: 1.0,
-    combo: 0,
-    maxCombo: 0,
-    currentSkin: 'panda-clasico',
-    skins: ['panda-clasico'],
-    achievements: [],
-    clan: null,
-    activeCards: []
+// Sistema de imágenes con fallbacks robustos
+const SKIN_URLS = {
+    'panda-clasico': 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-clasico.png',
+    'panda-dorado': 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-dorado.png',
+    'panda-hielo': 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-hielo.png',
+    'panda-fuego': 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-fuego.png',
+    'panda-electrico': 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-electrico.png'
 };
+
+// Crear placeholders programáticamente
+function createPlaceholderTexture(scene, key, color = 0xFFFFFF) {
+    const graphics = scene.add.graphics();
+    graphics.fillStyle(color, 1);
+    graphics.fillCircle(0, 0, 50);
+    graphics.fillStyle(0x000000, 1);
+    graphics.fillCircle(-15, -10, 8);
+    graphics.fillCircle(15, -10, 8);
+    graphics.generateTexture(key, 100, 100);
+    graphics.destroy();
+}
 
 window.initPhaserGame = () => {
     if (typeof Phaser === 'undefined') {
-        console.error('Phaser no está cargado');
+        console.error('Phaser no está cargado. Recargando...');
+        // Intentar cargar Phaser dinámicamente
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js';
+        script.onload = () => {
+            console.log('Phaser cargado dinámicamente, reiniciando juego...');
+            setTimeout(() => window.initPhaserGame(), 1000);
+        };
+        document.head.appendChild(script);
         return;
     }
+
+    console.log('Iniciando Crypto Panda Game...');
 
     const config = {
         type: Phaser.AUTO,
         width: window.innerWidth,
-        height: window.innerHeight - 150, // Ajustar para la UI
+        height: window.innerHeight - 150,
         parent: 'panda-container',
         backgroundColor: '#0b0b0f',
         scene: {
             preload() {
-                console.log('Cargando assets del juego...');
+                console.log('Precargando assets...');
                 
-                // Cargar skins desde Supabase
-                this.load.image('panda-clasico', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-clasico.png');
-                this.load.image('panda-dorado', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-dorado.png');
-                this.load.image('panda-hielo', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-hielo.png');
-                this.load.image('panda-fuego', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-fuego.png');
-                this.load.image('panda-electrico', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-electrico.png');
+                // Crear placeholder básico primero
+                createPlaceholderTexture(this, 'panda-placeholder', 0x6bcf7f);
                 
-                // Efectos de partículas
-                this.load.image('coin', 'https://placehold.co/32x32/FFD700/000000/png?text=🪙');
-                this.load.image('sparkle', 'https://placehold.co/16x16/FFFFFF/000000/png?text=✨');
+                // Intentar cargar skins con timeout
+                Object.entries(SKIN_URLS).forEach(([key, url]) => {
+                    this.load.image(key, url);
+                });
+                
+                // Cargar placeholders para efectos
+                this.load.image('coin', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTQiIGZpbGw9IiNGRkQ5M0QiIHN0cm9rZT0iI0ZGRjIzMCIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjx0ZXh0IHg9IjE2IiB5PSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjMDAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K');
+                this.load.image('sparkle', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjQiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuOCIvPgo8L3N2Zz4K');
             },
             
             create() {
-                console.log('Iniciando juego Crypto Panda...');
+                console.log('Creando escena del juego...');
                 
-                // Cargar datos del jugador
-                this.loadPlayerData();
+                // Verificar qué texturas se cargaron correctamente
+                const loadedTextures = [];
+                const failedTextures = [];
+                
+                Object.keys(SKIN_URLS).forEach(key => {
+                    if (this.textures.exists(key)) {
+                        loadedTextures.push(key);
+                    } else {
+                        failedTextures.push(key);
+                        console.warn(`Texture ${key} no se pudo cargar, usando placeholder`);
+                    }
+                });
+                
+                console.log(`Texturas cargadas: ${loadedTextures.length}, Fallidas: ${failedTextures.length}`);
+                
+                // Inicializar estado del juego si no existe
+                window.gameState = window.gameState || {
+                    coins: 0,
+                    gems: 0,
+                    level: 1,
+                    experience: 0,
+                    energy: 100,
+                    maxEnergy: 100,
+                    totalTaps: 0,
+                    currentMultiplier: 1.0,
+                    combo: 0,
+                    maxCombo: 0,
+                    currentSkin: 'panda-placeholder',
+                    skins: ['panda-placeholder'],
+                    achievements: [],
+                    clan: null,
+                    activeCards: []
+                };
                 
                 // Crear fondo animado
                 this.createAnimatedBackground();
                 
-                // Crear panda interactivo
+                // Crear panda (usará placeholder si es necesario)
                 this.createPanda();
                 
                 // Sistema de partículas
@@ -66,12 +106,12 @@ window.initPhaserGame = () => {
                 
                 // Sistema de combo
                 this.comboTimer = null;
-                this.comboTimeout = 2000; // 2 segundos para mantener combo
+                this.comboTimeout = 2000;
                 
                 // Actualizar UI
                 this.updateGameUI();
                 
-                // Regenerar energía cada segundo
+                // Regenerar energía
                 this.energyRegenTimer = this.time.addEvent({
                     delay: 1000,
                     callback: this.regenerateEnergy,
@@ -79,13 +119,13 @@ window.initPhaserGame = () => {
                     loop: true
                 });
                 
-                console.log('Juego Crypto Panda iniciado correctamente');
+                console.log('Escena del juego creada exitosamente');
             },
             
             update() {
-                // Animaciones continuas
-                if (this.panda) {
-                    this.panda.rotation += 0.001; // Rotación sutil
+                // Animaciones sutiles
+                if (this.panda && this.panda.preFX) {
+                    this.panda.rotation += 0.001;
                 }
             }
         }
@@ -93,63 +133,35 @@ window.initPhaserGame = () => {
 
     try {
         const game = new Phaser.Game(config);
-        console.log('Phaser Game instanciado:', game);
+        console.log('Juego Phaser creado:', game);
         return game;
     } catch (error) {
-        console.error('Error al crear juego Phaser:', error);
+        console.error('Error crítico al crear juego Phaser:', error);
+        // Intentar recuperación
+        setTimeout(() => {
+            console.log('Reintentando crear juego...');
+            window.initPhaserGame();
+        }, 2000);
     }
 };
 
 // ========== SISTEMA DEL JUEGO ==========
 
-// Cargar datos del jugador desde Supabase
-Phaser.Scene.prototype.loadPlayerData = async function() {
-    try {
-        console.log('Cargando datos del jugador...');
-        
-        // Por ahora simulamos datos, luego conectarás con tu base de datos
-        const mockData = {
-            coins: 1500,
-            gems: 5,
-            level: 3,
-            experience: 75,
-            energy: 85,
-            maxEnergy: 120,
-            totalTaps: 342,
-            currentMultiplier: 1.2,
-            combo: 0,
-            maxCombo: 15,
-            currentSkin: 'panda-clasico',
-            skins: ['panda-clasico', 'panda-dorado'],
-            achievements: ['primeros_10_taps', 'nivel_3_alcanzado'],
-            clan: null,
-            activeCards: []
-        };
-        
-        Object.assign(window.gameState, mockData);
-        this.updateGameUI();
-        
-    } catch (error) {
-        console.error('Error cargando datos del jugador:', error);
-    }
-};
-
 // Crear fondo animado
 Phaser.Scene.prototype.createAnimatedBackground = function() {
-    // Fondo con estrellas animadas
-    for (let i = 0; i < 50; i++) {
+    // Fondo de estrellas
+    for (let i = 0; i < 30; i++) {
         const star = this.add.circle(
             Phaser.Math.Between(0, this.cameras.main.width),
             Phaser.Math.Between(0, this.cameras.main.height),
-            Phaser.Math.FloatBetween(0.5, 2),
+            Phaser.Math.FloatBetween(0.5, 1.5),
             0xFFFFFF,
-            Phaser.Math.FloatBetween(0.3, 0.8)
+            Phaser.Math.FloatBetween(0.3, 0.7)
         );
         
-        // Animación de parpadeo
         this.tweens.add({
             targets: star,
-            alpha: { from: 0.3, to: 0.8 },
+            alpha: { from: 0.3, to: 0.7 },
             duration: Phaser.Math.Between(1000, 3000),
             yoyo: true,
             repeat: -1
@@ -157,17 +169,24 @@ Phaser.Scene.prototype.createAnimatedBackground = function() {
     }
 };
 
-// Crear panda interactivo principal
+// Crear panda con fallback
 Phaser.Scene.prototype.createPanda = function() {
     const centerX = this.cameras.main.centerX;
     const centerY = this.cameras.main.centerY;
     
-    // Crear panda con la skin actual
-    this.panda = this.add.image(centerX, centerY, window.gameState.currentSkin)
+    // Determinar qué skin usar
+    let skinToUse = window.gameState.currentSkin;
+    if (!this.textures.exists(skinToUse)) {
+        skinToUse = 'panda-placeholder';
+        console.warn(`Skin ${window.gameState.currentSkin} no disponible, usando placeholder`);
+    }
+    
+    // Crear panda
+    this.panda = this.add.image(centerX, centerY, skinToUse)
         .setScale(0.6)
         .setInteractive({ useHandCursor: true });
     
-    // Efecto de brillo alrededor del panda
+    // Efecto de glow
     const glow = this.add.circle(centerX, centerY, 180, 0xFFFFFF, 0.1);
     this.tweens.add({
         targets: glow,
@@ -178,7 +197,7 @@ Phaser.Scene.prototype.createPanda = function() {
         repeat: -1
     });
     
-    // ¡EVENTO DE TAP PRINCIPAL!
+    // Evento de TAP
     this.panda.on('pointerdown', (pointer) => {
         this.handleTap(pointer);
     });
@@ -198,57 +217,38 @@ Phaser.Scene.prototype.createPanda = function() {
     this.add.text(centerX, centerY + 150, '¡TOCA AL PANDA PARA GANAR!', {
         fontSize: '20px',
         fill: '#FFFFFF',
-        fontFamily: 'Arial',
-        stroke: '#000000',
-        strokeThickness: 3
+        fontFamily: 'Arial'
     }).setOrigin(0.5);
 };
 
-// Manejar el evento de tap
+// Manejar tap (mantener la misma lógica robusta)
 Phaser.Scene.prototype.handleTap = function(pointer) {
     if (window.gameState.energy <= 0) {
         this.showEnergyWarning();
         return;
     }
     
-    // Calcular recompensa
     const baseReward = 1;
     const coinsEarned = Math.floor(baseReward * window.gameState.currentMultiplier);
     const expEarned = 1;
     
-    // Actualizar estado del juego
     window.gameState.energy -= 1;
     window.gameState.totalTaps += 1;
     window.gameState.coins += coinsEarned;
     window.gameState.experience += expEarned;
     
-    // Manejar combo
     this.handleCombo();
-    
-    // Efectos visuales
     this.createTapEffects(pointer.x, pointer.y, coinsEarned);
     this.animatePandaTap();
-    
-    // Verificar logros
     this.checkAchievements();
-    
-    // Verificar subida de nivel
     this.checkLevelUp();
-    
-    // Actualizar UI
     this.updateGameUI();
-    
-    // Guardar progreso (cada 10 taps)
-    if (window.gameState.totalTaps % 10 === 0) {
-        this.saveGameProgress();
-    }
 };
 
 // Sistema de combo
 Phaser.Scene.prototype.handleCombo = function() {
     window.gameState.combo += 1;
     
-    // Reiniciar timer de combo
     if (this.comboTimer) {
         this.comboTimer.remove();
     }
@@ -258,20 +258,18 @@ Phaser.Scene.prototype.handleCombo = function() {
         this.updateGameUI();
     });
     
-    // Actualizar máximo combo
     if (window.gameState.combo > window.gameState.maxCombo) {
         window.gameState.maxCombo = window.gameState.combo;
     }
     
-    // Bonus por combo
     if (window.gameState.combo % 10 === 0) {
         this.createComboBonus();
     }
 };
 
-// Efectos visuales del tap
+// Efectos de tap
 Phaser.Scene.prototype.createTapEffects = function(x, y, coinsEarned) {
-    // Efecto de ondas concéntricas
+    // Efecto de onda
     const circle = this.add.circle(x, y, 10, 0xFFFFFF, 0.5);
     this.tweens.add({
         targets: circle,
@@ -285,9 +283,7 @@ Phaser.Scene.prototype.createTapEffects = function(x, y, coinsEarned) {
     const rewardText = this.add.text(x, y - 30, `+${coinsEarned} 🪙`, {
         fontSize: '24px',
         fill: '#FFD700',
-        fontFamily: 'Arial',
-        stroke: '#000000',
-        strokeThickness: 3
+        fontFamily: 'Arial'
     }).setOrigin(0.5);
     
     this.tweens.add({
@@ -297,20 +293,6 @@ Phaser.Scene.prototype.createTapEffects = function(x, y, coinsEarned) {
         duration: 1000,
         onComplete: () => rewardText.destroy()
     });
-    
-    // Partículas de coins
-    for (let i = 0; i < 3; i++) {
-        const coin = this.add.image(x, y, 'coin');
-        this.tweens.add({
-            targets: coin,
-            x: x + Phaser.Math.Between(-50, 50),
-            y: y - Phaser.Math.Between(50, 100),
-            alpha: 0,
-            rotation: Phaser.Math.Between(0, 6),
-            duration: 800,
-            onComplete: () => coin.destroy()
-        });
-    }
 };
 
 // Animación del panda al hacer tap
@@ -332,9 +314,7 @@ Phaser.Scene.prototype.createComboBonus = function() {
     const comboText = this.add.text(centerX, 200, `COMBO x${window.gameState.combo}!`, {
         fontSize: '32px',
         fill: '#FF5555',
-        fontFamily: 'Arial',
-        stroke: '#000000',
-        strokeThickness: 4
+        fontFamily: 'Arial'
     }).setOrigin(0.5);
     
     this.tweens.add({
@@ -349,7 +329,6 @@ Phaser.Scene.prototype.createComboBonus = function() {
 
 // Sistema de partículas
 Phaser.Scene.prototype.createParticleSystems = function() {
-    // Sistema de partículas para efectos especiales
     this.sparkleEmitter = this.add.particles(0, 0, 'sparkle', {
         speed: 20,
         scale: { start: 0.5, end: 0 },
@@ -389,12 +368,9 @@ Phaser.Scene.prototype.showLevelUpEffect = function() {
     const levelUpText = this.add.text(centerX, centerY - 50, `¡NIVEL ${window.gameState.level}!`, {
         fontSize: '48px',
         fill: '#00FF00',
-        fontFamily: 'Arial',
-        stroke: '#000000',
-        strokeThickness: 6
+        fontFamily: 'Arial'
     }).setOrigin(0.5);
     
-    // Efecto de explosión de partículas
     this.sparkleEmitter.explode(50, centerX, centerY);
     
     this.tweens.add({
@@ -411,17 +387,14 @@ Phaser.Scene.prototype.showLevelUpEffect = function() {
 Phaser.Scene.prototype.checkAchievements = function() {
     const newAchievements = [];
     
-    // Logro: Primeros 10 taps
     if (window.gameState.totalTaps >= 10 && !window.gameState.achievements.includes('primeros_10_taps')) {
         newAchievements.push('primeros_10_taps');
     }
     
-    // Logro: Combo de 10
     if (window.gameState.combo >= 10 && !window.gameState.achievements.includes('combo_10')) {
         newAchievements.push('combo_10');
     }
     
-    // Añadir nuevos logros
     newAchievements.forEach(achievement => {
         window.gameState.achievements.push(achievement);
         this.showAchievementUnlocked(achievement);
@@ -435,9 +408,7 @@ Phaser.Scene.prototype.showAchievementUnlocked = function(achievement) {
     const achievementText = this.add.text(centerX, 100, `🏆 Logro Desbloqueado!`, {
         fontSize: '24px',
         fill: '#FFD700',
-        fontFamily: 'Arial',
-        stroke: '#000000',
-        strokeThickness: 3
+        fontFamily: 'Arial'
     }).setOrigin(0.5);
     
     this.tweens.add({
@@ -449,16 +420,14 @@ Phaser.Scene.prototype.showAchievementUnlocked = function(achievement) {
     });
 };
 
-// Advertencia de energía agotada
+// Advertencia de energía
 Phaser.Scene.prototype.showEnergyWarning = function() {
     const centerX = this.cameras.main.centerX;
     
     const warningText = this.add.text(centerX, 100, '⚡ Energía agotada!', {
         fontSize: '24px',
         fill: '#FF5555',
-        fontFamily: 'Arial',
-        stroke: '#000000',
-        strokeThickness: 3
+        fontFamily: 'Arial'
     }).setOrigin(0.5);
     
     this.tweens.add({
@@ -469,44 +438,21 @@ Phaser.Scene.prototype.showEnergyWarning = function() {
     });
 };
 
-// Actualizar interfaz de usuario
+// Actualizar UI
 Phaser.Scene.prototype.updateGameUI = function() {
-    // Actualizar textos en la UI HTML
-    if (document.getElementById('energy-text')) {
-        document.getElementById('energy-text').textContent = 
-            `${window.gameState.energy}/${window.gameState.maxEnergy}`;
-    }
-    if (document.getElementById('coins-text')) {
-        document.getElementById('coins-text').textContent = window.gameState.coins;
-    }
-    if (document.getElementById('gems-text')) {
-        document.getElementById('gems-text').textContent = window.gameState.gems;
-    }
-    if (document.getElementById('level-text')) {
-        document.getElementById('level-text').textContent = `Nvl ${window.gameState.level}`;
-    }
-    if (document.getElementById('multiplier-text')) {
-        document.getElementById('multiplier-text').textContent = `${window.gameState.currentMultiplier}x`;
-    }
-    if (document.getElementById('combo-text')) {
-        document.getElementById('combo-text').textContent = window.gameState.combo;
-    }
-    if (document.getElementById('total-taps')) {
-        document.getElementById('total-taps').textContent = window.gameState.totalTaps;
-    }
-    if (document.getElementById('exp-text')) {
-        document.getElementById('exp-text').textContent = 
-            `${window.gameState.experience}/${window.gameState.level * 100}`;
-    }
-};
-
-// Guardar progreso en Supabase
-Phaser.Scene.prototype.saveGameProgress = async function() {
-    try {
-        console.log('Guardando progreso del juego...');
-        // Aquí implementarás la conexión con tu base de datos Supabase
-        // usando window.supabase
-    } catch (error) {
-        console.error('Error guardando progreso:', error);
-    }
+    const elements = {
+        'energy-text': `${window.gameState.energy}/${window.gameState.maxEnergy}`,
+        'coins-text': window.gameState.coins,
+        'gems-text': window.gameState.gems,
+        'level-text': `Nvl ${window.gameState.level}`,
+        'multiplier-text': `${window.gameState.currentMultiplier}x`,
+        'combo-text': window.gameState.combo,
+        'total-taps': window.gameState.totalTaps,
+        'exp-text': `${window.gameState.experience}/${window.gameState.level * 100}`
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    });
 };

@@ -7,6 +7,7 @@ window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
     const SPLASH_PNG = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/crypto_panda_portada.png';
+    const FALLBACK_SPLASH = 'https://placehold.co/600x800/1a1a2e/FFFFFF/png?text=Crypto+Panda\\nTap2Earn\\n🐼';
 
     const splashScreen = document.getElementById('splash-screen');
     const mainGame = document.getElementById('main-game');
@@ -20,23 +21,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startBtn.style.display = 'none';
 
-    // Función para precargar imagen
-    function preloadImage(url, onProgress, onComplete, onError) {
+    // Función mejorada para precargar imagen con timeout
+    function preloadImage(url, fallbackUrl, onProgress, onComplete, onError) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
+        let loaded = false;
         let simulated = 0;
+        
         const simInterval = setInterval(() => {
             simulated = Math.min(90, simulated + Math.random() * 10);
             onProgress(simulated);
         }, 120);
 
+        const timeout = setTimeout(() => {
+            if (!loaded) {
+                clearInterval(simInterval);
+                console.warn('Timeout cargando imagen, usando fallback');
+                onError();
+            }
+        }, 5000); // 5 segundos timeout
+
         img.onload = () => {
+            loaded = true;
+            clearTimeout(timeout);
             clearInterval(simInterval);
             onProgress(100);
             onComplete(img);
         };
 
         img.onerror = () => {
+            loaded = true;
+            clearTimeout(timeout);
             clearInterval(simInterval);
             onError();
         };
@@ -45,16 +60,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setProgress(p) {
-        progressFill.style.width = p + '%';
+        if (progressFill) {
+            progressFill.style.width = p + '%';
+        }
     }
 
     function showStartButton() {
         startBtn.classList.add('visible');
         startBtn.style.display = 'inline-block';
+        startBtn.style.animation = 'pulse 2s infinite';
+    }
+
+    function applyFallbackBackground() {
+        const fallbackStyle = {
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+        };
+
+        if (splashBg) {
+            Object.assign(splashBg.style, fallbackStyle);
+            splashBg.innerHTML = '<div style="text-align: center; color: white; font-size: 24px; font-weight: bold;">🐼 CRYPTO PANDA<br><span style="font-size: 16px;">Tap2Earn Game</span></div>';
+        } else {
+            Object.assign(splashScreen.style, fallbackStyle);
+        }
     }
 
     function fallbackShowStart() {
-        progressFill.style.width = '100%';
+        setProgress(100);
+        applyFallbackBackground();
         setTimeout(showStartButton, 300);
     }
 
@@ -96,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Cargar contenido de la tienda
+    // Cargar contenido de la tienda con fallbacks
     function loadShopContent() {
         const skinsGrid = document.getElementById('skins-grid');
         if (!skinsGrid) return;
@@ -108,18 +143,21 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'panda-fuego', name: 'Panda de Fuego', price: '20,000 🪙', owned: false, image: 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-fuego.png' }
         ];
 
-        skinsGrid.innerHTML = skins.map(skin => `
-            <div class="skin-item ${skin.owned ? 'owned' : ''}">
-                <img src="${skin.image}" alt="${skin.name}" class="skin-image">
-                <div class="skin-info">
-                    <h4>${skin.name}</h4>
-                    <div class="skin-price">${skin.price}</div>
-                    <button class="skin-action-btn ${skin.owned ? 'equip' : 'buy'}">
-                        ${skin.owned ? '🎯 EQUIPAR' : '🛒 COMPRAR'}
-                    </button>
+        skinsGrid.innerHTML = skins.map(skin => {
+            const fallbackImage = `https://placehold.co/100x100/333333/FFFFFF/png?text=${encodeURIComponent(skin.name)}`;
+            return `
+                <div class="skin-item ${skin.owned ? 'owned' : ''}">
+                    <img src="${skin.image}" alt="${skin.name}" class="skin-image" onerror="this.src='${fallbackImage}'">
+                    <div class="skin-info">
+                        <h4>${skin.name}</h4>
+                        <div class="skin-price">${skin.price}</div>
+                        <button class="skin-action-btn ${skin.owned ? 'equip' : 'buy'}">
+                            ${skin.owned ? '🎯 EQUIPAR' : '🛒 COMPRAR'}
+                        </button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Cargar contenido de clanes
@@ -196,11 +234,13 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
-    // Precargar imagen de splash
+    // Precargar imagen de splash con fallback robusto
     preloadImage(
         SPLASH_PNG,
+        FALLBACK_SPLASH,
         (p) => setProgress(p),
         (img) => {
+            console.log('Imagen de portada cargada exitosamente');
             if (splashBg) {
                 splashBg.style.backgroundImage = `url('${SPLASH_PNG}')`;
                 splashBg.style.backgroundSize = 'cover';
@@ -217,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 250);
         },
         () => {
-            console.warn('Error cargando portada desde Supabase. Se mostrará fallback.');
+            console.warn('Error cargando portada desde Supabase. Aplicando fallback...');
             fallbackShowStart();
         }
     );
@@ -226,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startBtn.addEventListener('click', () => {
         startBtn.style.animation = 'none';
         startBtn.textContent = '¡CARGANDO JUEGO!';
-        startBtn.style.transform = 'scale(1.05)';
+        startBtn.disabled = true;
 
         setTimeout(() => {
             splashScreen.classList.add('hidden');
@@ -250,11 +290,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.initPhaserGame === 'function') {
                 try { 
                     window.initPhaserGame(); 
+                    console.log('Juego Phaser iniciado correctamente');
                 } catch (e) { 
                     console.error('Error iniciando Phaser:', e); 
                 }
             } else {
                 console.error('initPhaserGame no está definido');
+                // Intentar cargar Phaser manualmente
+                const script = document.createElement('script');
+                script.src = 'js/phaser-game.js';
+                document.head.appendChild(script);
             }
 
             // Integración con Telegram Web App
@@ -262,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     Telegram.WebApp.ready();
                     if (typeof Telegram.WebApp.expand === 'function') Telegram.WebApp.expand();
+                    console.log('Telegram WebApp integrado');
                 } catch (e) {
                     console.error('Error con Telegram WebApp:', e);
                 }
@@ -272,7 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fallback por si la carga tarda demasiado
     setTimeout(() => {
         if (startBtn.style.display === 'none') {
+            console.log('Timeout: Mostrando botón START por fallback');
             fallbackShowStart();
         }
-    }, 8000);
+    }, 3000); // Reducido a 3 segundos
 });
