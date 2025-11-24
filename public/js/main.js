@@ -1,3 +1,8 @@
+// Al inicio de main.js, verifica que Phaser esté cargado
+if (typeof Phaser === 'undefined') {
+  console.error('Phaser no está disponible. Verifica la carga del script.');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const SPLASH_PNG = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/crypto_panda_portada.png';
 
@@ -86,14 +91,22 @@ document.addEventListener('DOMContentLoaded', () => {
       mainGame.style.visibility = 'visible';
 
       if (typeof window.initPhaserGame === 'function') {
-        try { window.initPhaserGame(); } catch (e) { console.error('Error iniciando Phaser:', e); }
+        try { 
+          window.initPhaserGame(); 
+        } catch (e) { 
+          console.error('Error iniciando Phaser:', e); 
+        }
+      } else {
+        console.error('initPhaserGame no está definido');
       }
 
       if (window.Telegram?.WebApp) {
         try {
           Telegram.WebApp.ready();
           if (typeof Telegram.WebApp.expand === 'function') Telegram.WebApp.expand();
-        } catch (e) {}
+        } catch (e) {
+          console.error('Error con Telegram WebApp:', e);
+        }
       }
     }, 600);
   });
