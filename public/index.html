@@ -7,13 +7,13 @@
     <meta name="description" content="Evoluciona tu panda, colecciona skins únicas y compite en torneos épicos">
     <meta name="theme-color" content="#000000">
     
-    <!-- Content Security Policy para Telegram -->
+    <!-- CSP corregido para Phaser + Supabase -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self' https://telegram.org;
-        script-src 'self' 'unsafe-inline' https://telegram.org;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org https://cdn.jsdelivr.net;
         style-src 'self' 'unsafe-inline';
         img-src 'self' data: https: blob:;
-        connect-src 'self' https://telegram.org;
+        connect-src 'self' https://telegram.org https://*.supabase.co;
         font-src 'self';
         object-src 'none';
         base-uri 'self';
@@ -21,10 +21,7 @@
         frame-ancestors 'none';
     ">
     
-    <!-- Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Styles -->
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
@@ -33,180 +30,95 @@
         <div id="splash-screen" class="screen active">
             <div class="background-image"></div>
             <div class="background-overlay"></div>
-            
             <div class="loading-content">
                 <div class="progress-container" id="progressContainer">
                     <div class="progress-label">Cargando Crypto Panda Universe</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
                 </div>
-                
                 <button id="startBtn" class="start-button">INICIAR AVENTURA</button>
-                
                 <div class="game-features">
-                    <div class="feature-item">🐼 10 Niveles de Evolución</div>
-                    <div class="feature-item">🎨 20+ Skins Únicas</div>
-                    <div class="feature-item">🏆 Torneos en Tiempo Real</div>
-                    <div class="feature-item">🃏 Sistema de Cartas</div>
+                    <div class="feature-item">Panda 10 Niveles de Evolución</div>
+                    <div class="feature-item">Paint 20+ Skins Únicas</div>
+                    <div class="feature-item">Trophy Torneos en Tiempo Real</div>
+                    <div class="feature-item">Cards Sistema de Cartas</div>
                 </div>
             </div>
         </div>
 
         <!-- Main Game Interface -->
         <div id="main-game" class="screen">
-            <!-- Header con múltiples stats -->
             <header class="game-header">
                 <div class="player-main-info">
-                    <div class="level-badge">
-                        <span id="playerLevel">1</span>
-                    </div>
+                    <div class="level-badge"><span id="playerLevel">1</span></div>
                     <div class="player-resources">
-                        <div class="resource-item">
-                            <span class="resource-icon">💰</span>
-                            <span id="playerCoins">0</span>
-                            <span class="resource-symbol">$PANDA</span>
-                        </div>
-                        <div class="resource-item">
-                            <span class="resource-icon">💎</span>
-                            <span id="playerGems">0</span>
-                        </div>
-                        <div class="resource-item">
-                            <span class="resource-icon">⚡</span>
-                            <span id="energyText">6000/6000</span>
-                        </div>
+                        <div class="resource-item"><span class="resource-icon">Coin</span><span id="playerCoins">0</span><span class="resource-symbol">$PANDA</span></div>
+                        <div class="resource-item"><span class="resource-icon">Gem</span><span id="playerGems">0</span></div>
+                        <div class="resource-item"><span class="resource-icon">Lightning</span><span id="energyText">6000/6000</span></div>
                     </div>
                 </div>
-
                 <div class="energy-container">
-                    <div class="energy-bar">
-                        <div class="energy-fill" id="energyFill"></div>
-                    </div>
+                    <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
                 </div>
-
                 <div class="quick-actions">
-                    <button class="action-btn" id="dailyRewardBtn" title="Recompensa Diaria">
-                        <span>🎁</span>
-                    </button>
-                    <button class="action-btn" id="tournamentBtn" title="Torneos">
-                        <span>🏆</span>
-                    </button>
-                    <button class="action-btn" id="friendsBtn" title="Amigos">
-                        <span>👥</span>
-                    </button>
+                    <button class="action-btn" id="dailyRewardBtn" title="Recompensa Diaria"><span>Gift</span></button>
+                    <button class="action-btn" id="tournamentBtn" title="Torneos"><span>Trophy</span></button>
+                    <button class="action-btn" id="friendsBtn" title="Amigos"><span>Users</span></button>
                 </div>
             </header>
 
-            <!-- Navigation Tabs -->
             <nav class="game-navigation">
                 <div class="nav-tabs">
-                    <button class="nav-tab active" data-tab="tap">
-                        <span class="tab-icon">👆</span>
-                        <span class="tab-text">TAP</span>
-                    </button>
-                    <button class="nav-tab" data-tab="evolution">
-                        <span class="tab-icon">🐼</span>
-                        <span class="tab-text">EVOLUCION</span>
-                    </button>
-                    <button class="nav-tab" data-tab="skins">
-                        <span class="tab-icon">🎨</span>
-                        <span class="tab-text">SKINS</span>
-                    </button>
-                    <button class="nav-tab" data-tab="cards">
-                        <span class="tab-icon">🃏</span>
-                        <span class="tab-text">CARTAS</span>
-                    </button>
-                    <button class="nav-tab" data-tab="clan">
-                        <span class="tab-icon">🏘️</span>
-                        <span class="tab-text">CLAN</span>
-                    </button>
-                    <button class="nav-tab" data-tab="shop">
-                        <span class="tab-icon">🛒</span>
-                        <span class="tab-text">TIENDA</span>
-                    </button>
+                    <button class="nav-tab active" data-tab="tap"><span class="tab-icon">Pointing Up</span><span class="tab-text">TAP</span></button>
+                    <button class="nav-tab" data-tab="evolution"><span class="tab-icon">Panda</span><span class="tab-text">EVOLUCION</span></button>
+                    <button class="nav-tab" data-tab="skins"><span class="tab-icon">Paint</span><span class="tab-text">SKINS</span></button>
+                    <button class="nav-tab" data-tab="cards"><span class="tab-icon">Cards</span><span class="tab-text">CARTAS</span></button>
+                    <button class="nav-tab" data-tab="clan"><span class="tab-icon">City</span><span class="tab-text">CLAN</span></button>
+                    <button class="nav-tab" data-tab="shop"><span class="tab-icon">Shopping Cart</span><span class="tab-text">TIENDA</span></button>
                 </div>
             </nav>
 
-            <!-- Main Content Area -->
             <main class="game-content">
                 <div id="tab-content" class="tab-content">
-                    <div id="panda-container">
-                        <div id="panda">
-                            <div class="nose"></div>
-                        </div>
-                        <div class="combo-display" id="comboDisplay">
-                            <span class="combo-text">COMBO</span>
-                            <span class="combo-count">x1</span>
-                        </div>
+                    <!-- PHASER SE INYECTA AQUÍ -->
+                    <div id="panda-container" style="position:relative;width:100%;height:100%;overflow:hidden;background:transparent;">
+                    </div>
+                    <div class="combo-display" id="comboDisplay">
+                        <span class="combo-text">COMBO</span>
+                        <span class="combo-count">x1</span>
                     </div>
                 </div>
             </main>
 
-            <!-- Bottom Bar -->
             <footer class="game-footer">
                 <div class="boost-indicators">
-                    <div class="boost-item" id="skinBoost">
-                        <span>🎨</span>
-                        <span class="boost-value">1.0x</span>
-                    </div>
-                    <div class="boost-item" id="levelBoost">
-                        <span>🐼</span>
-                        <span class="boost-value">1.0x</span>
-                    </div>
-                    <div class="boost-item" id="cardBoost">
-                        <span>🃏</span>
-                        <span class="boost-value">0%</span>
-                    </div>
+                    <div class="boost-item" id="skinBoost"><span>Paint</span><span class="boost-value">1.0x</span></div>
+                    <div class="boost-item" id="levelBoost"><span>Panda</span><span class="boost-value">1.0x</span></div>
+                    <div class="boost-item" id="cardBoost"><span>Cards</span><span class="boost-value">0%</span></div>
                 </div>
             </footer>
         </div>
     </div>
 
-    <!-- JavaScript con detección mejorada de Telegram -->
     <script>
-    // ===== DETECCIÓN MEJORADA DE TELEGRAM =====
     (function() {
-        console.log('🔍 Iniciando detección de Telegram Web App...');
-        
-        // Esperar a que Telegram Web App esté disponible
-        function waitForTelegram(callback) {
-            if (window.Telegram && window.Telegram.WebApp) {
-                callback();
-            } else {
-                setTimeout(() => waitForTelegram(callback), 100);
-            }
+        function waitForTelegram(cb) {
+            if (window.Telegram && window.Telegram.WebApp) cb();
+            else setTimeout(()=>waitForTelegram(cb),100);
         }
-        
-        waitForTelegram(function() {
-            console.log('✅ Telegram Web App detectado');
+        waitForTelegram(()=>{
             const tg = window.Telegram.WebApp;
-            
-            // Inicializar Telegram
-            tg.ready();
-            tg.expand();
-            
-            // Configurar tema
-            tg.setHeaderColor('#000000');
-            tg.setBackgroundColor('#000000');
-            
-            console.log('👤 Usuario:', tg.initDataUnsafe?.user);
-            console.log('🌐 Plataforma:', tg.platform);
-            console.log('📏 Viewport:', tg.viewportHeight, 'x', tg.viewportWidth);
-            
-            // Marcar que estamos en Telegram
+            tg.ready(); tg.expand();
+            tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
             window.isTelegram = true;
         });
-        
-        // Fallback después de 3 segundos
-        setTimeout(() => {
-            if (!window.isTelegram) {
-                console.log('🌐 Modo navegador estándar');
-                window.isTelegram = false;
-            }
-        }, 3000);
+        setTimeout(()=>{ if(!window.isTelegram) window.isTelegram=false; },3000);
     })();
     </script>
-    
+
+    <!-- Tu lógica actual (coins, energy, tabs, etc.) -->
     <script src="js/main.js"></script>
+
+    <!-- Panda mítico con Phaser + skins desde Supabase -->
+    <script type="module" src="js/phaser-game.js"></script>
 </body>
 </html>
