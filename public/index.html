@@ -124,7 +124,18 @@
     </div>
   </div>
 
+  <!-- ============================================= -->
+  <!-- ORDEN CORRECTO DE CARGA - NUEVO -->
+  <!-- ============================================= -->
+  
+  <!-- 1. SERVICIOS CORE PRIMERO -->
+  <script src="js/core/SupabaseService.js"></script>
+  <script src="js/core/GameManager.js"></script>
+  
+  <!-- 2. JUEGO PHASER -->
   <script src="js/phaser-game.js"></script>
+  
+  <!-- 3. MAIN JS ÚLTIMO (depende de todos los anteriores) -->
   <script src="js/main.js"></script>
 </body>
 </html>
