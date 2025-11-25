@@ -31,13 +31,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =============================================
     async function initializeServices() {
         try {
-            // Cargar servicios dinámicamente
-            await loadScript('js/core/SupabaseService.js');
-            await loadScript('js/core/GameManager.js');
-            
             // Inicializar servicios
-            window.supabaseService = new SupabaseService();
-            window.gameManager = new GameManager();
+            window.supabaseService = new window.SupabaseService();
+            window.gameManager = new window.GameManager();
             
             console.log('✅ Servicios inicializados correctamente');
             return true;
@@ -45,16 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('❌ Error inicializando servicios:', error);
             return false;
         }
-    }
-
-    function loadScript(src) {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = src;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
     }
 
     // =============================================
@@ -114,12 +100,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log('✅ Usuario existente cargado:', user);
             } else {
                 // Crear nuevo usuario
-                user = await window.supabaseService.createUser({
+                const { data: newUser, error: createError } = await window.supabaseService.createUser({
                     telegram_id: telegramUser.id,
                     username: telegramUser.username,
                     first_name: telegramUser.first_name,
                     language_code: telegramUser.language_code || 'es'
                 });
+                
+                if (createError) throw createError;
+                user = newUser;
                 console.log('✅ Nuevo usuario creado:', user);
             }
 
@@ -270,8 +259,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data: userSkins, error: userError } = await window.supabaseService.getUserSkins(window.currentUser.id);
             if (userError) throw userError;
 
-            const userSkinIds = userSkins.map(us => us.skin_id);
-            const equippedSkin = userSkins.find(us => us.is_equipped);
+            const userSkinIds = userSkins ? userSkins.map(us => us.skin_id) : [];
+            const equippedSkin = userSkins ? userSkins.find(us => us.is_equipped) : null;
 
             skinsGrid.innerHTML = skins.map(skin => {
                 const owned = userSkinIds.includes(skin.id);
@@ -348,7 +337,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="clan-perks">
                             <strong>Beneficios:</strong>
                             <ul>
-                                ${userClan.clan_perks.map(perk => `<li>✅ ${perk}</li>`).join('')}
+                                ${userClan.clan_perks ? userClan.clan_perks.map(perk => `<li>✅ ${perk}</li>`).join('') : ''}
                             </ul>
                         </div>
                         <div class="clan-actions">
@@ -375,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     <div class="clans-list">
                         <h4>Clanes Disponibles</h4>
-                        ${clans.map(clan => `
+                        ${clans ? clans.map(clan => `
                             <div class="clan-item">
                                 <div class="clan-logo">
                                     <img src="${clan.logo_url}" alt="${clan.name}">
@@ -387,7 +376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 </div>
                                 <button class="clan-join-btn" data-clan-id="${clan.id}">Unirse</button>
                             </div>
-                        `).join('')}
+                        `).join('') : '<p>No hay clanes disponibles</p>'}
                     </div>
                 `;
             }
@@ -412,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (userError) throw userError;
 
             cardsGrid.innerHTML = cards.map(card => {
-                const userCard = userCards.find(uc => uc.card_id === card.id);
+                const userCard = userCards ? userCards.find(uc => uc.card_id === card.id) : null;
                 const quantity = userCard ? userCard.quantity : 0;
                 
                 return `
@@ -454,7 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (userError) throw userError;
 
             achievementsList.innerHTML = achievements.map(achievement => {
-                const userAchievement = userAchievements.find(ua => ua.achievement_id === achievement.id);
+                const userAchievement = userAchievements ? userAchievements.find(ua => ua.achievement_id === achievement.id) : null;
                 const completed = userAchievement?.is_completed || false;
                 const progress = userAchievement?.progress_current || 0;
                 const target = achievement.requirement_value;
@@ -541,8 +530,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     );
 
-    // Evento del botón START
+    // Evento del botón START - CORREGIDO
     startBtn.addEventListener('click', async () => {
+        console.log('🎯 Botón START clickeado - Iniciando juego...');
         startBtn.style.animation = 'none';
         startBtn.textContent = '¡INICIALIZANDO...!';
         startBtn.disabled = true;
@@ -554,6 +544,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!appReady) {
                 throw new Error('La aplicación no se pudo inicializar');
             }
+
+            console.log('✅ Aplicación inicializada, mostrando juego...');
 
             // Transición a la pantalla principal
             setTimeout(() => {
@@ -572,13 +564,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadTabContent('shop');
 
                 // Iniciar juego Phaser
+                console.log('🎮 Iniciando Phaser...');
                 if (typeof window.initPhaserGame === 'function') {
                     try { 
                         window.initPhaserGame(); 
-                        console.log('Juego Phaser iniciado correctamente');
+                        console.log('✅ Juego Phaser iniciado correctamente');
                     } catch (e) { 
-                        console.error('Error iniciando Phaser:', e); 
+                        console.error('❌ Error iniciando Phaser:', e); 
                     }
+                } else {
+                    console.error('❌ initPhaserGame no está definido');
                 }
 
                 // Integración con Telegram Web App
@@ -586,15 +581,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     try {
                         Telegram.WebApp.ready();
                         Telegram.WebApp.expand();
-                        console.log('Telegram WebApp integrado');
+                        console.log('✅ Telegram WebApp integrado');
                     } catch (e) {
-                        console.error('Error con Telegram WebApp:', e);
+                        console.error('❌ Error con Telegram WebApp:', e);
                     }
                 }
             }, 600);
 
         } catch (error) {
-            console.error('Error crítico al iniciar:', error);
+            console.error('❌ Error crítico al iniciar:', error);
             startBtn.textContent = '❌ ERROR - RECARGAR';
             startBtn.disabled = false;
             alert('Error al inicializar el juego. Por favor, recarga la página.');
