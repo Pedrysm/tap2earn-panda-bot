@@ -12,16 +12,19 @@
 </head>
 <body>
   <div id="app">
-    <!-- SPLASH SCREEN -->
+    <!-- SPLASH SCREEN MEJORADA -->
     <div id="splash-screen" class="screen active">
       <div class="background-image" id="splashBg"></div>
       <div class="background-overlay"></div>
       <div class="loading-content" id="loadingContent">
+        <!-- Contenedor de progreso mejorado -->
         <div class="progress-container">
           <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
           </div>
+          <div class="loading-text" id="loadingText">LOADING...</div>
         </div>
+        <!-- Botón START mejorado -->
         <button id="startBtn" class="start-button" style="display:none;">START GAME</button>
       </div>
     </div>
@@ -124,18 +127,10 @@
     </div>
   </div>
 
-  <!-- ============================================= -->
-  <!-- ORDEN CORRECTO DE CARGA - NUEVO -->
-  <!-- ============================================= -->
-  
-  <!-- 1. SERVICIOS CORE PRIMERO -->
+  <!-- ORDEN CORRECTO DE CARGA -->
   <script src="js/core/SupabaseService.js"></script>
   <script src="js/core/GameManager.js"></script>
-  
-  <!-- 2. JUEGO PHASER -->
   <script src="js/phaser-game.js"></script>
-  
-  <!-- 3. MAIN JS ÚLTIMO (depende de todos los anteriores) -->
   <script src="js/main.js"></script>
 </body>
 </html>
