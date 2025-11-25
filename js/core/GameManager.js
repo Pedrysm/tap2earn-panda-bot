@@ -1,4 +1,5 @@
-export class GameManager {
+// GameManager.js - Versión corregida para navegador
+window.GameManager = class GameManager {
     constructor() {
         this.userId = null;
         this.userStats = null;

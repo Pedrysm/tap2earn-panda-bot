@@ -1,4 +1,5 @@
-export class SupabaseService {
+// SupabaseService.js - Versión corregida para navegador
+window.SupabaseService = class SupabaseService {
     constructor() {
         this.supabase = window.supabase;
         console.log('✅ SupabaseService inicializado');
