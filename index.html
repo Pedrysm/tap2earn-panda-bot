@@ -6,8 +6,14 @@
     <meta name="theme-color" content="#000000" />
     <title>Crypto Panda</title>
 
-    <!-- Telegram WebApp oficial (última versión) -->
+    <!-- TELEGRAM WEBAPP -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- PHASER 3 (OBLIGATORIO) -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+
+    <!-- SUPABASE (OBLIGATORIO) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; }
@@ -17,6 +23,7 @@
 </head>
 <body>
 
+    <!-- TU SPLASH SCREEN -->
     <div id="splash-screen">
         <div id="splashBg"></div>
         <div id="loadingText">Cargando...</div>
@@ -28,23 +35,17 @@
         <div id="panda-container"></div>
     </div>
 
-    <!-- RUTAS CORRECTAS SEGÚN TU ESTRUCTURA REAL -->
+    <!-- TUS ARCHIVOS (ruta correcta) -->
     <script src="js/core/debug.js"></script>
     <script src="js/phaser-game.js"></script>
     <script src="js/main.js"></script>
 
-    <!-- Inicialización segura de Telegram -->
+    <!-- INICIALIZACIÓN TELEGRAM -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
-                console.log('Telegram WebApp OK');
-
-                if (Telegram.WebApp.isVersionAtLeast?.('6.1')) {
-                    Telegram.WebApp.setHeaderColor('#000000');
-                    Telegram.WebApp.setBackgroundColor('#000000');
-                }
             }
         });
     </script>
