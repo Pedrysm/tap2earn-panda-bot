@@ -7,7 +7,7 @@ class PandaGameScene extends Phaser.Scene {
 
   preload() {
     console.log('📦 Precargando assets del juego...');
-    this.load.image('panda-basico', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-basico.png');
+    this.load.image('panda-clasico', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-clasico.webp');
   }
 
   create() {
@@ -21,7 +21,7 @@ class PandaGameScene extends Phaser.Scene {
       tap_power: 1.0,
       total_taps: 0,
       gems: 0,
-      current_skin: 'panda-basico'
+      current_skin: 'panda-clasico'
     };
 
     const centerX = this.cameras.main.centerX;
