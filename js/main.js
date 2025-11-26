@@ -1,88 +1,94 @@
-// js/main.js - VERSIÓN 100% FUNCIONAL (fix final)
+// js/main.js - SPLASH SCREEN OFICIAL 100% FUNCIONAL (5 segundos)
 
 const SUPABASE_URL = 'https://vrbxeerfvoaukcopydpt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyYnhlZXJmdm9hdWtjb3B5ZHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjU2MTksImV4cCI6MjAzNzUwMTYxOX0.7M7Hce-E1pXr_ldc6dMMT2rJp5jWY6kU-2jQ5q1x1kE';
-
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Juego Crypto Panda iniciando...');
-    
+    console.log('Crypto Panda iniciando...');
+
     const splashScreen = document.getElementById('splash-screen');
     const mainGame = document.getElementById('main-game');
-    const progressFill = document.getElementById('progressFill');
     const startBtn = document.getElementById('startBtn');
-    const splashBg = document.getElementById('splashBg');
-    const loadingText = document.getElementById('loadingText');
 
-    const SPLASH_PNG = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/splash_screen.png';
-    
-    if (splashBg) {
-        splashBg.style.backgroundImage = `url('${SPLASH_PNG}')`;
-        splashBg.style.backgroundSize = 'cover';
-        splashBg.style.backgroundPosition = 'center';
-        splashBg.style.backgroundRepeat = 'no-repeat';
-    }
+    // === TUS ASSETS OFICIALES ===
+    const SPLASH_BG = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/splash_screen.png';
+    const PROGRESS_BAR = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/bar-progress.jpg';
+    const START_BUTTON = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/start-bottom.jpg';
 
+    // Fondo completo
+    splashScreen.style.background = `url('${SPLASH_BG}') center/cover no-repeat`;
+
+    // Barra de progreso
+    const progressContainer = document.createElement('div');
+    progressContainer.style.position = 'absolute';
+    progressContainer.style.bottom = '180px';
+    progressContainer.style.left = '50%';
+    progressContainer.style.transform = 'translateX(-50%)';
+    progressContainer.style.width = '80%';
+    progressContainer.style.height = '40px';
+    progressContainer.innerHTML = `
+        <img src="${PROGRESS_BAR}" style="width:100%; height:100%; border-radius:12px;">
+        <div style="position:absolute; top:0; left:0; width:0%; height:100%; background:linear-gradient(90deg, #00ff9d, #00b8ff); border-radius:12px; transition:width 0.1s linear;"></div>
+    `;
+    splashScreen.appendChild(progressContainer);
+    const progressFill = progressContainer.querySelector('div');
+
+    // Botón START GAME (tu diseño oficial)
+    startBtn.style.background = `url('${START_BUTTON}') center/cover no-repeat`;
+    startBtn.style.border = 'none';
+    startBtn.style.width = '280px';
+    startBtn.style.height = '90px';
+    startBtn.style.cursor = 'pointer';
+    startBtn.style.position = 'absolute';
+    startBtn.style.bottom = '70px';
+    startBtn.style.left = '50%';
+    startBtn.style.transform = 'translateX(-50%)';
     startBtn.style.display = 'none';
-    startBtn.textContent = 'START GAME';
 
-    // BARRA DE CARGA FAKE (5 segundos)
+    // === BARRA QUE SE LLENA EN EXACTOS 5 SEGUNDOS ===
     let progress = 0;
-    const totalTime = 5000;
-    const updateInterval = 50;
-    const increment = (100 / totalTime) * updateInterval;
-    
-    const progressBar = setInterval(() => {
+    const duration = 5000;
+    const interval = 50;
+    const increment = 100 / (duration / interval);
+
+    const timer = setInterval(() => {
         progress += increment;
         progressFill.style.width = progress + '%';
         if (progress >= 100) {
-            clearInterval(progressBar);
-            showStartButton();
+            clearInterval(timer);
+            startBtn.style.display = 'block';
+            startBtn.style.animation = 'pulse 1.5s infinite';
         }
-    }, updateInterval);
+    }, interval);
 
-    function showStartButton() {
-        console.log('Carga completada - Mostrando botón START');
-        startBtn.style.display = 'block';
-        startBtn.classList.add('visible');
-        if (loadingText) loadingText.style.display = 'none';
-    }
-
-    // AQUÍ ESTABA EL ERROR: iniciaba Phaser demasiado pronto
-    startBtn.addEventListener('click', function() {
-        console.log('Botón START clickeado - Iniciando juego...');
-        startBtn.textContent = 'CARGANDO...';
-        startBtn.disabled = true;
+    // === AL TOCAR START GAME ===
+    startBtn.addEventListener('click', () => {
+        console.log('START GAME clickeado');
+        startBtn.style.opacity = '0.7';
 
         setTimeout(() => {
             splashScreen.style.opacity = '0';
-            splashScreen.style.visibility = 'hidden';
+            splashScreen.style.transition = 'opacity 0.8s';
             mainGame.style.opacity = '1';
             mainGame.style.visibility = 'visible';
 
-            // FIX: Esperar a que TODO esté cargado antes de iniciar Phaser
             setTimeout(() => {
                 if (typeof window.initPhaserGame === 'function') {
-                    console.log('Iniciando Phaser...');
                     window.initPhaserGame();
-                } else {
-                    console.error('initPhaserGame no está listo aún');
                 }
-            }, 500);
-        }, 500);
+            }, 600);
+        }, 400);
     });
 
-    setTimeout(() => {
-        if (startBtn.style.display === 'none') showStartButton();
-    }, 6000);
+    // CSS pulse para el botón
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
 });
-
-// Servicios básicos (sin cambios)
-setTimeout(() => {
-    if (window.SupabaseService && window.GameManager) {
-        window.supabaseService = new window.SupabaseService();
-        window.gameManager = new window.GameManager();
-        console.log('Servicios básicos inicializados');
-    }
-}, 1000);
