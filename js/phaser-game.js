@@ -1,4 +1,4 @@
-// phaser-game.js - VERSIÓN CORREGIDA PARA SUPABASE
+// phaser-game.js - VERSIÓN COMPLETA CON TUTORIAL INTEGRADO
 
 class PandaGameScene extends Phaser.Scene {
     constructor() {
@@ -7,6 +7,8 @@ class PandaGameScene extends Phaser.Scene {
         this.gameManager = null;
         this.userData = null;
         this.userStats = null;
+        this.telegramUser = null;
+        this.tutorialCompleted = false;
     }
 
     preload() {
@@ -15,7 +17,7 @@ class PandaGameScene extends Phaser.Scene {
         // Cargar placeholder básico
         this.createPlaceholderTexture('panda-placeholder', 0x6bcf7f);
         
-        // Las skins reales se cargarán dinámicamente desde Supabase
+        // Cargar skins por defecto
         this.loadDefaultSkins();
         
         // Efectos básicos
@@ -26,16 +28,40 @@ class PandaGameScene extends Phaser.Scene {
     async create() {
         console.log('🎮 Creando escena del juego...');
         
+        // VERIFICACIÓN CRÍTICA: Obtener usuario de Telegram
+        await this.initializeTelegramUser();
+        
         // Inicializar servicios
         await this.initializeServices();
         
         // Cargar datos del usuario desde Supabase
         await this.loadUserData();
         
-        // Configurar sistemas del juego
-        this.setupGameSystems();
-        
         console.log('✅ Escena del juego creada exitosamente');
+    }
+
+    async initializeTelegramUser() {
+        console.log('🔐 Inicializando usuario de Telegram...');
+        
+        if (window.tg && window.tg.initDataUnsafe && window.tg.initDataUnsafe.user) {
+            this.telegramUser = window.tg.initDataUnsafe.user;
+            console.log('✅ Usuario de Telegram detectado:', this.telegramUser);
+            window.currentUser = this.telegramUser;
+        } else {
+            console.error('❌ No se pudo obtener usuario de Telegram');
+            this.showTelegramError();
+            throw new Error('Usuario de Telegram no disponible');
+        }
+    }
+
+    showTelegramError() {
+        this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 
+            'ERROR: No se pudo autenticar con Telegram\n\nPor favor, abre el juego desde @CryptoPandaBot', {
+            fontSize: '18px',
+            fill: '#ff4444',
+            align: 'center',
+            fontFamily: 'Arial'
+        }).setOrigin(0.5);
     }
 
     createPlaceholderTexture(key, color = 0xFFFFFF) {
@@ -74,78 +100,161 @@ class PandaGameScene extends Phaser.Scene {
 
     async loadUserData() {
         try {
-            // Obtener datos del usuario actual
-            this.userData = window.currentUser;
-            if (!this.userData) {
-                throw new Error('No hay usuario autenticado');
+            console.log('👤 Cargando datos del usuario...');
+            this.userData = this.telegramUser;
+            
+            if (!this.userData || !this.userData.id) {
+                throw new Error('No hay usuario autenticado de Telegram');
             }
 
-            // Cargar estadísticas del usuario
+            console.log('📊 Buscando estadísticas para usuario ID:', this.userData.id);
+            
             const { data: stats, error } = await this.supabaseService.getUserStats(this.userData.id);
-            if (error) throw error;
             
-            this.userStats = stats;
+            if (error) {
+                console.error('Error al cargar stats:', error);
+                await this.createNewUser();
+            } else {
+                this.userStats = stats;
+                console.log('✅ Estadísticas cargadas:', this.userStats);
+                
+                // VERIFICAR SI NECESITA TUTORIAL
+                if (!this.userStats.tutorial_seen) {
+                    console.log('🎓 Usuario nuevo - Mostrando tutorial...');
+                    this.showTutorial();
+                    return;
+                } else {
+                    console.log('✅ Usuario existente - Saltando tutorial');
+                    this.setupGameSystems();
+                }
+            }
             
-            // Cargar skins del usuario
             await this.loadUserSkins();
-            
-            console.log('✅ Datos de usuario cargados:', this.userStats);
             
         } catch (error) {
             console.error('❌ Error cargando datos del usuario:', error);
+            this.showError('Error cargando datos del usuario');
             throw error;
         }
     }
 
+    async createNewUser() {
+        console.log('👤 Creando nuevo usuario en Supabase...');
+        
+        const newUserStats = {
+            user_id: this.userData.id,
+            username: this.userData.username || `user_${this.userData.id}`,
+            first_name: this.userData.first_name || 'Usuario',
+            level: 1,
+            experience: 0,
+            coins: 0,
+            gems: 0,
+            energy: 100,
+            max_energy: 100,
+            total_taps: 0,
+            tap_power: 1.0,
+            max_combo: 0,
+            current_skin: 'panda-basico',
+            tutorial_seen: false,
+            created_at: new Date().toISOString(),
+            last_energy_update: new Date().toISOString()
+        };
+
+        const { data, error } = await this.supabaseService.createUserStats(newUserStats);
+        
+        if (error) {
+            console.error('❌ Error creando usuario:', error);
+            throw error;
+        }
+        
+        this.userStats = data;
+        console.log('✅ Nuevo usuario creado:', this.userStats);
+        
+        // Mostrar tutorial para usuario nuevo
+        this.showTutorial();
+    }
+
+    showTutorial() {
+        console.log('🚀 Lanzando escena de tutorial...');
+        this.scene.launch('TutorialScene', {
+            userId: this.userData.id,
+            supabaseService: this.supabaseService,
+            onTutorialComplete: () => {
+                console.log('🎉 Tutorial completado - Iniciando juego principal');
+                this.tutorialCompleted = true;
+                this.userStats.tutorial_seen = true;
+                this.setupGameSystems();
+            }
+        });
+    }
+
     async loadUserSkins() {
         try {
+            console.log('🎨 Cargando skins del usuario...');
             const { data: userSkins, error } = await this.supabaseService.getUserSkins(this.userData.id);
-            if (error) throw error;
+            
+            if (error) {
+                console.warn('⚠ No se pudieron cargar las skins:', error);
+                return;
+            }
 
-            // Cargar texturas de las skins del usuario
             if (userSkins && userSkins.length > 0) {
                 for (const userSkin of userSkins) {
                     const skinData = userSkin.panda_skins;
                     if (skinData && skinData.image_url) {
-                        // Cargar skin dinámicamente si no existe
                         if (!this.textures.exists(skinData.name)) {
+                            console.log('📥 Cargando skin:', skinData.name);
                             this.load.image(skinData.name, skinData.image_url);
                         }
                     }
                 }
                 
-                // Esperar a que carguen las texturas
-                this.load.once('complete', () => {
-                    console.log('✅ Skins del usuario cargadas');
+                return new Promise((resolve) => {
+                    this.load.once('complete', () => {
+                        console.log('✅ Todas las skins cargadas');
+                        resolve();
+                    });
+                    this.load.start();
                 });
-                this.load.start();
             }
-            
         } catch (error) {
             console.error('❌ Error cargando skins del usuario:', error);
         }
     }
 
     setupGameSystems() {
-        // Crear elementos del juego
+        console.log('🎯 Configurando sistemas del juego...');
+        
+        // Solo configurar si no hay tutorial activo
+        if (this.scene.isActive('TutorialScene')) {
+            console.log('⏳ Tutorial activo, esperando a que termine...');
+            return;
+        }
+
         this.createAnimatedBackground();
         this.createPanda();
         this.createParticleSystems();
         
-        // Sistema de combo
         this.comboTimer = null;
         this.comboTimeout = 2000;
         this.currentCombo = 0;
         
-        // Actualizar UI inicial
+        this.showUserInfo();
         this.updateGameUI();
         
-        // Sistema de energía (usando el de GameManager)
         console.log('✅ Sistemas del juego configurados');
     }
 
+    showUserInfo() {
+        const userInfoText = `Jugador: ${this.userData.first_name}`;
+        this.add.text(10, 10, userInfoText, {
+            fontSize: '12px',
+            fill: '#AAAAAA',
+            fontFamily: 'Arial'
+        }).setOrigin(0, 0);
+    }
+
     createAnimatedBackground() {
-        // Fondo de estrellas
         for (let i = 0; i < 30; i++) {
             const star = this.add.circle(
                 Phaser.Math.Between(0, this.cameras.main.width),
@@ -169,21 +278,17 @@ class PandaGameScene extends Phaser.Scene {
         const centerX = this.cameras.main.centerX;
         const centerY = this.cameras.main.centerY;
         
-        // Determinar skin actual del usuario
         let currentSkin = this.userStats?.current_skin || 'panda-basico';
         
-        // Verificar si la skin existe, sino usar placeholder
         if (!this.textures.exists(currentSkin)) {
             currentSkin = 'panda-placeholder';
             console.warn(`Skin ${this.userStats?.current_skin} no disponible, usando placeholder`);
         }
         
-        // Crear panda
         this.panda = this.add.image(centerX, centerY, currentSkin)
             .setScale(0.6)
             .setInteractive({ useHandCursor: true });
         
-        // Efecto de glow
         const glow = this.add.circle(centerX, centerY, 180, 0xFFFFFF, 0.1);
         this.tweens.add({
             targets: glow,
@@ -194,12 +299,10 @@ class PandaGameScene extends Phaser.Scene {
             repeat: -1
         });
         
-        // Evento de TAP
         this.panda.on('pointerdown', (pointer) => {
             this.handleTap(pointer);
         });
         
-        // Efectos hover
         this.panda.on('pointerover', () => {
             this.panda.setTint(0xDDDDFF);
             this.panda.setScale(0.62);
@@ -210,7 +313,6 @@ class PandaGameScene extends Phaser.Scene {
             this.panda.setScale(0.6);
         });
         
-        // Texto de instrucción
         this.add.text(centerX, centerY + 150, '¡TOCA AL PANDA PARA GANAR!', {
             fontSize: '20px',
             fill: '#FFFFFF',
@@ -219,40 +321,30 @@ class PandaGameScene extends Phaser.Scene {
     }
 
     async handleTap(pointer) {
-        // Verificar energía
         if (this.userStats.energy <= 0) {
             this.showEnergyWarning();
             return;
         }
         
         try {
-            // Calcular recompensa con multiplicadores
             const baseReward = 1;
             const tapPower = this.userStats.tap_power || 1.0;
             const coinsEarned = Math.floor(baseReward * tapPower);
             const expEarned = 1;
             
-            // Actualizar stats locales
             this.userStats.energy -= 1;
             this.userStats.total_taps += 1;
             this.userStats.coins += coinsEarned;
             this.userStats.experience += expEarned;
             
-            // Manejar combo
             this.handleCombo();
-            
-            // Efectos visuales
             this.createTapEffects(pointer.x, pointer.y, coinsEarned);
             this.animatePandaTap();
             
-            // Sincronizar con Supabase
             await this.syncTapToSupabase();
-            
-            // Verificar logros y nivel
             await this.checkAchievements();
             await this.checkLevelUp();
             
-            // Actualizar UI
             this.updateGameUI();
             
         } catch (error) {
@@ -278,7 +370,6 @@ class PandaGameScene extends Phaser.Scene {
             const { error } = await this.supabaseService.updateUserStats(this.userData.id, updates);
             if (error) throw error;
             
-            console.log('✅ Tap sincronizado con Supabase');
         } catch (error) {
             console.error('❌ Error sincronizando tap:', error);
         }
@@ -287,7 +378,6 @@ class PandaGameScene extends Phaser.Scene {
     handleCombo() {
         this.currentCombo += 1;
         
-        // Reiniciar timer de combo
         if (this.comboTimer) {
             this.comboTimer.remove();
         }
@@ -297,19 +387,16 @@ class PandaGameScene extends Phaser.Scene {
             this.updateGameUI();
         });
         
-        // Actualizar max combo si es necesario
         if (this.currentCombo > this.userStats.max_combo) {
             this.userStats.max_combo = this.currentCombo;
         }
         
-        // Bonus cada 10 combos
         if (this.currentCombo % 10 === 0) {
             this.createComboBonus();
         }
     }
 
     createTapEffects(x, y, coinsEarned) {
-        // Efecto de onda
         const circle = this.add.circle(x, y, 10, 0xFFFFFF, 0.5);
         this.tweens.add({
             targets: circle,
@@ -319,7 +406,6 @@ class PandaGameScene extends Phaser.Scene {
             onComplete: () => circle.destroy()
         });
         
-        // Texto de recompensa
         const rewardText = this.add.text(x, y - 30, `+${coinsEarned} 🪙`, {
             fontSize: '24px',
             fill: '#FFD700',
@@ -348,7 +434,6 @@ class PandaGameScene extends Phaser.Scene {
 
     createComboBonus() {
         const centerX = this.cameras.main.centerX;
-        
         const comboText = this.add.text(centerX, 200, `COMBO x${this.currentCombo}!`, {
             fontSize: '32px',
             fill: '#FF5555',
@@ -379,13 +464,11 @@ class PandaGameScene extends Phaser.Scene {
         const expNeeded = this.userStats.level * 100;
         
         if (this.userStats.experience >= expNeeded) {
-            // Subir de nivel
             this.userStats.level += 1;
             this.userStats.experience = 0;
             this.userStats.max_energy += 10;
             this.userStats.energy = this.userStats.max_energy;
             
-            // Guardar en Supabase
             await this.supabaseService.updateUserStats(this.userData.id, {
                 level: this.userStats.level,
                 experience: this.userStats.experience,
@@ -422,15 +505,11 @@ class PandaGameScene extends Phaser.Scene {
     }
 
     async checkAchievements() {
-        // Aquí implementarías la lógica para verificar logros
-        // basado en this.userStats y this.currentCombo
-        // Por ahora es un placeholder
         console.log('🔍 Verificando logros...');
     }
 
     showEnergyWarning() {
         const centerX = this.cameras.main.centerX;
-        
         const warningText = this.add.text(centerX, 100, '⚡ Energía agotada!', {
             fontSize: '24px',
             fill: '#FF5555',
@@ -443,6 +522,15 @@ class PandaGameScene extends Phaser.Scene {
             duration: 2000,
             onComplete: () => warningText.destroy()
         });
+    }
+
+    showError(message) {
+        this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 
+            message, {
+            fontSize: '16px',
+            fill: '#ff4444',
+            fontFamily: 'Arial'
+        }).setOrigin(0.5);
     }
 
     updateGameUI() {
@@ -466,24 +554,20 @@ class PandaGameScene extends Phaser.Scene {
     }
 
     update() {
-        // Animaciones sutiles
         if (this.panda) {
             this.panda.rotation += 0.001;
         }
     }
 }
 
-// =============================================
 // INICIALIZACIÓN GLOBAL DEL JUEGO
-// =============================================
-
 window.initPhaserGame = () => {
     if (typeof Phaser === 'undefined') {
         console.error('❌ Phaser no está cargado');
         return;
     }
 
-    console.log('🎯 Iniciando Crypto Panda Game con Supabase...');
+    console.log('🎯 Iniciando Crypto Panda Game con Tutorial...');
 
     const config = {
         type: Phaser.AUTO,
@@ -491,7 +575,11 @@ window.initPhaserGame = () => {
         height: window.innerHeight - 150,
         parent: 'panda-container',
         backgroundColor: '#0b0b0f',
-        scene: PandaGameScene
+        scene: [PandaGameScene, TutorialScene],
+        scale: {
+            mode: Phaser.Scale.RESIZE,
+            autoCenter: Phaser.Scale.CENTER_BOTH
+        }
     };
 
     try {
