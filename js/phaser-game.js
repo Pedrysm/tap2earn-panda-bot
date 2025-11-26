@@ -576,37 +576,37 @@ class PandaGameScene extends Phaser.Scene {
     }
 }
 
-// INICIALIZACIÓN GLOBAL (corregida)
+// INICIALIZACIÓN GLOBAL DEL JUEGO
 window.initPhaserGame = () => {
-    if (typeof Phaser === 'undefined') {
-        console.error('Phaser no está cargado');
-        return;
+  if (typeof Phaser === 'undefined') {
+    console.error('Phaser no está cargado');
+    return;
+  }
+
+  // Conectar clases definidas en archivos separados
+  const PandaGameScene = window.PandaGameScene;
+  const TutorialScene = window.TutorialScene;
+
+  console.log('🎮 Iniciando Crypto Panda Game...');
+
+  const config = {
+    type: Phaser.AUTO,
+    width: window.innerWidth,
+    height: window.innerHeight - 150,
+    parent: 'panda-container',
+    backgroundColor: '#0b0b0f',
+    scene: [PandaGameScene, TutorialScene],
+    scale: {
+      mode: Phaser.Scale.RESIZE,
+      autoCenter: Phaser.Scale.CENTER_BOTH
     }
+  };
 
-    // Conectar clases definidas en archivos separados
-    const PandaGameScene = window.PandaGameScene;
-    const TutorialScene = window.TutorialScene;
-
-    console.log('Iniciando Crypto Panda Game con Tutorial...');
-
-    const config = {
-        type: Phaser.AUTO,
-        width: window.innerWidth,
-        height: window.innerHeight - 150,
-        parent: 'panda-container',
-        backgroundColor: '#0b0b0f',
-        scene: [PandaGameScene, TutorialScene],
-        scale: {
-            mode: Phaser.Scale.RESIZE,
-            autoCenter: Phaser.Scale.CENTER_BOTH
-        }
-    };
-
-    try {
-        const game = new Phaser.Game(config);
-        console.log('Juego Phaser creado exitosamente');
-        return game;
-    } catch (error) {
-        console.error('Error crítico al crear juego Phaser:', error);
-    }
+  try {
+    const game = new Phaser.Game(config);
+    console.log('✅ Juego Phaser creado exitosamente');
+    return game;
+  } catch (error) {
+    console.error('❌ Error crítico al crear juego Phaser:', error);
+  }
 };

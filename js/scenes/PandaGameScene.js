@@ -7,7 +7,10 @@ class PandaGameScene extends Phaser.Scene {
 
   preload() {
     console.log('📦 Precargando assets del juego...');
-    this.load.image('panda-clasico', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/panda-clasico.webp');
+    this.load.image(
+      'panda-clasico',
+      'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/skins/panda-clasico.webp'
+    );
   }
 
   create() {
