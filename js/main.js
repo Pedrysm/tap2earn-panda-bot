@@ -1,94 +1,87 @@
-// js/main.js - SPLASH SCREEN OFICIAL 100% FUNCIONAL (5 segundos)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <title>Crypto Panda</title>
 
-const SUPABASE_URL = 'https://vrbxeerfvoaukcopydpt.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyYnhlZXJmdm9hdWtjb3B5ZHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjU2MTksImV4cCI6MjAzNzUwMTYxOX0.7M7Hce-E1pXr_ldc6dMMT2rJp5jWY6kU-2jQ5q1x1kE';
-window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <!-- Telegram + Phaser + Supabase -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Crypto Panda iniciando...');
+    <style>
+        body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; font-family: Arial; }
+        #splash-screen { position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; background-position:center; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+        #main-game { opacity:0; visibility:hidden; transition: opacity 0.6s; position:absolute; top:0; left:0; width:100%; height:100%; }
+        #progressBar { width:80%; height:20px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; margin:20px 0; }
+        #progressFill { height:100%; background:linear-gradient(90deg, #00ff9d, #00b8ff); width:0%; transition:width 0.1s linear; }
+        #startBtn { width:280px; height:90px; background:url('https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/start-bottom.jpg') center/cover no-repeat; border:none; border-radius:45px; cursor:pointer; margin-top:40px; display:none; animation:pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
+    </style>
+</head>
+<body>
 
-    const splashScreen = document.getElementById('splash-screen');
-    const mainGame = document.getElementById('main-game');
-    const startBtn = document.getElementById('startBtn');
+    <!-- SPLASH INTEGRADO -->
+    <div id="splash-screen" style="background:url('https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/splash_screen.png') center/cover no-repeat;">
+        <div id="loadingText" style="color:#fff; font-size:24px; margin-bottom:20px;">Cargando Crypto Panda...</div>
+        <div id="progressBar"><div id="progressFill"></div></div>
+        <button id="startBtn">START GAME</button>
+    </div>
 
-    // === TUS ASSETS OFICIALES ===
-    const SPLASH_BG = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/splash_screen.png';
-    const PROGRESS_BAR = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/bar-progress.jpg';
-    const START_BUTTON = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/start-bottom.jpg';
+    <div id="main-game">
+        <div id="panda-container"></div>
+    </div>
 
-    // Fondo completo
-    splashScreen.style.background = `url('${SPLASH_BG}') center/cover no-repeat`;
+    <!-- TUS SCRIPTS -->
+    <script src="js/scenes/TutorialScene.js"></script>
+    <script src="js/phaser-game.js"></script>
+    <script src="js/main.js"></script>
 
-    // Barra de progreso
-    const progressContainer = document.createElement('div');
-    progressContainer.style.position = 'absolute';
-    progressContainer.style.bottom = '180px';
-    progressContainer.style.left = '50%';
-    progressContainer.style.transform = 'translateX(-50%)';
-    progressContainer.style.width = '80%';
-    progressContainer.style.height = '40px';
-    progressContainer.innerHTML = `
-        <img src="${PROGRESS_BAR}" style="width:100%; height:100%; border-radius:12px;">
-        <div style="position:absolute; top:0; left:0; width:0%; height:100%; background:linear-gradient(90deg, #00ff9d, #00b8ff); border-radius:12px; transition:width 0.1s linear;"></div>
-    `;
-    splashScreen.appendChild(progressContainer);
-    const progressFill = progressContainer.querySelector('div');
-
-    // Botón START GAME (tu diseño oficial)
-    startBtn.style.background = `url('${START_BUTTON}') center/cover no-repeat`;
-    startBtn.style.border = 'none';
-    startBtn.style.width = '280px';
-    startBtn.style.height = '90px';
-    startBtn.style.cursor = 'pointer';
-    startBtn.style.position = 'absolute';
-    startBtn.style.bottom = '70px';
-    startBtn.style.left = '50%';
-    startBtn.style.transform = 'translateX(-50%)';
-    startBtn.style.display = 'none';
-
-    // === BARRA QUE SE LLENA EN EXACTOS 5 SEGUNDOS ===
-    let progress = 0;
-    const duration = 5000;
-    const interval = 50;
-    const increment = 100 / (duration / interval);
-
-    const timer = setInterval(() => {
-        progress += increment;
-        progressFill.style.width = progress + '%';
-        if (progress >= 100) {
-            clearInterval(timer);
-            startBtn.style.display = 'block';
-            startBtn.style.animation = 'pulse 1.5s infinite';
+    <!-- TELEGRAM READY -->
+    <script>
+        if (window.Telegram?.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
         }
-    }, interval);
+    </script>
 
-    // === AL TOCAR START GAME ===
-    startBtn.addEventListener('click', () => {
-        console.log('START GAME clickeado');
-        startBtn.style.opacity = '0.7';
+    <!-- ANIMACIÓN DE BARRA (5 SEGUNDOS) -->
+    <script>
+        const progressFill = document.getElementById('progressFill');
+        const startBtn = document.getElementById('startBtn');
+        const splashScreen = document.getElementById('splash-screen');
+        const mainGame = document.getElementById('main-game');
+        const loadingText = document.getElementById('loadingText');
 
-        setTimeout(() => {
+        let progress = 0;
+        const duration = 5000;
+        const interval = 50;
+        const increment = 100 / (duration / interval);
+
+        const timer = setInterval(() => {
+            progress += increment;
+            progressFill.style.width = progress + '%';
+            if (progress >= 100) {
+                clearInterval(timer);
+                loadingText.style.display = 'none';
+                startBtn.style.display = 'block';
+            }
+        }, interval);
+
+        startBtn.addEventListener('click', () => {
+            startBtn.style.display = 'none';
             splashScreen.style.opacity = '0';
-            splashScreen.style.transition = 'opacity 0.8s';
-            mainGame.style.opacity = '1';
-            mainGame.style.visibility = 'visible';
-
             setTimeout(() => {
+                splashScreen.style.display = 'none';
+                mainGame.style.opacity = '1';
+                mainGame.style.visibility = 'visible';
                 if (typeof window.initPhaserGame === 'function') {
                     window.initPhaserGame();
                 }
             }, 600);
-        }, 400);
-    });
-
-    // CSS pulse para el botón
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes pulse {
-            0% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.05); }
-            100% { transform: translateX(-50%) scale(1); }
-        }
-    `;
-    document.head.appendChild(style);
-});
+        });
+    </script>
+</body>
+</html>
