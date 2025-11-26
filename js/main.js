@@ -1,87 +1,53 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#000000" />
-    <title>Crypto Panda</title>
+// Simulación de entorno Telegram y Supabase
+window.currentUser = null;
 
-    <!-- Telegram + Phaser + Supabase -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+window.supabaseService = {
+  async getUserStats(userId) {
+    console.log('📡 Cargando stats desde Supabase...');
+    // Simulación de datos reales
+    return {
+      data: {
+        energy: 100,
+        coins: 0,
+        experience: 0,
+        level: 1,
+        max_energy: 100,
+        tap_power: 1.0,
+        total_taps: 0,
+        gems: 0,
+        current_skin: 'panda-clasico'
+      },
+      error: null
+    };
+  },
 
-    <style>
-        body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; font-family: Arial; }
-        #splash-screen { position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; background-position:center; display:flex; flex-direction:column; justify-content:center; align-items:center; }
-        #main-game { opacity:0; visibility:hidden; transition: opacity 0.6s; position:absolute; top:0; left:0; width:100%; height:100%; }
-        #progressBar { width:80%; height:20px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; margin:20px 0; }
-        #progressFill { height:100%; background:linear-gradient(90deg, #00ff9d, #00b8ff); width:0%; transition:width 0.1s linear; }
-        #startBtn { width:280px; height:90px; background:url('https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/start-bottom.jpg') center/cover no-repeat; border:none; border-radius:45px; cursor:pointer; margin-top:40px; display:none; animation:pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
-    </style>
-</head>
-<body>
+  async updateUserStats(userId, updates) {
+    console.log('💾 Guardando progreso en Supabase...', updates);
+    return { error: null };
+  }
+};
 
-    <!-- SPLASH INTEGRADO -->
-    <div id="splash-screen" style="background:url('https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/splash_screen.png') center/cover no-repeat;">
-        <div id="loadingText" style="color:#fff; font-size:24px; margin-bottom:20px;">Cargando Crypto Panda...</div>
-        <div id="progressBar"><div id="progressFill"></div></div>
-        <button id="startBtn">START GAME</button>
-    </div>
+// Splash → Juego
+document.getElementById('start-button').addEventListener('click', async () => {
+  const splash = document.getElementById('splash-screen');
+  const mainGame = document.getElementById('main-game');
 
-    <div id="main-game">
-        <div id="panda-container"></div>
-    </div>
+  splash.classList.remove('active');
+  splash.classList.add('hidden');
 
-    <!-- TUS SCRIPTS -->
-    <script src="js/scenes/TutorialScene.js"></script>
-    <script src="js/phaser-game.js"></script>
-    <script src="js/main.js"></script>
+  mainGame.classList.remove('hidden');
+  mainGame.classList.add('active');
 
-    <!-- TELEGRAM READY -->
-    <script>
-        if (window.Telegram?.WebApp) {
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-        }
-    </script>
+  // Simulación de usuario Telegram
+  const tg = window.Telegram?.WebApp;
+  if (tg?.initDataUnsafe?.user) {
+    window.currentUser = tg.initDataUnsafe.user;
+    tg.ready();
+    tg.expand();
+  } else {
+    window.currentUser = { id: 'demo-user', username: 'DemoPanda' };
+  }
 
-    <!-- ANIMACIÓN DE BARRA (5 SEGUNDOS) -->
-    <script>
-        const progressFill = document.getElementById('progressFill');
-        const startBtn = document.getElementById('startBtn');
-        const splashScreen = document.getElementById('splash-screen');
-        const mainGame = document.getElementById('main-game');
-        const loadingText = document.getElementById('loadingText');
-
-        let progress = 0;
-        const duration = 5000;
-        const interval = 50;
-        const increment = 100 / (duration / interval);
-
-        const timer = setInterval(() => {
-            progress += increment;
-            progressFill.style.width = progress + '%';
-            if (progress >= 100) {
-                clearInterval(timer);
-                loadingText.style.display = 'none';
-                startBtn.style.display = 'block';
-            }
-        }, interval);
-
-        startBtn.addEventListener('click', () => {
-            startBtn.style.display = 'none';
-            splashScreen.style.opacity = '0';
-            setTimeout(() => {
-                splashScreen.style.display = 'none';
-                mainGame.style.opacity = '1';
-                mainGame.style.visibility = 'visible';
-                if (typeof window.initPhaserGame === 'function') {
-                    window.initPhaserGame();
-                }
-            }, 600);
-        });
-    </script>
-</body>
-</html>
+  // Iniciar juego
+  window.initPhaserGame();
+});
