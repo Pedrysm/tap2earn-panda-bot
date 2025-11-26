@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingText = document.getElementById('loadingText');
 
     // URL de la imagen de portada
-    const SPLASH_PNG = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/skins/crypto_panda_portada.png';
+    const SPLASH_PNG = 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/splash_screen.png';
     
     // Configurar imagen de fondo INMEDIATAMENTE - sin oscurecer
     if (splashBg) {
