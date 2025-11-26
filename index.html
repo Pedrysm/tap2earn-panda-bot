@@ -6,13 +6,9 @@
     <meta name="theme-color" content="#000000" />
     <title>Crypto Panda</title>
 
-    <!-- TELEGRAM WEBAPP -->
+    <!-- Telegram + Phaser + Supabase -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <!-- PHASER 3 (OBLIGATORIO) -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-
-    <!-- SUPABASE (OBLIGATORIO) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -23,7 +19,6 @@
 </head>
 <body>
 
-    <!-- TU SPLASH SCREEN -->
     <div id="splash-screen">
         <div id="splashBg"></div>
         <div id="loadingText">Cargando...</div>
@@ -35,12 +30,14 @@
         <div id="panda-container"></div>
     </div>
 
-    <!-- TUS ARCHIVOS (ruta correcta) -->
-    <script src="js/core/debug.js"></script>
+    <!-- TUTORIAL (ruta exacta que me diste) -->
+    <script src="js/scenes/TutorialScene.js"></script>
+
+    <!-- JUEGO PRINCIPAL -->
     <script src="js/phaser-game.js"></script>
     <script src="js/main.js"></script>
 
-    <!-- INICIALIZACIÓN TELEGRAM -->
+    <!-- Telegram ready -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.Telegram?.WebApp) {
