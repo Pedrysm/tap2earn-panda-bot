@@ -576,12 +576,16 @@ class PandaGameScene extends Phaser.Scene {
     }
 }
 
-// INICIALIZACIÓN GLOBAL (sin cambios)
+// INICIALIZACIÓN GLOBAL (corregida)
 window.initPhaserGame = () => {
     if (typeof Phaser === 'undefined') {
         console.error('Phaser no está cargado');
         return;
     }
+
+    // Conectar clases definidas en archivos separados
+    const PandaGameScene = window.PandaGameScene;
+    const TutorialScene = window.TutorialScene;
 
     console.log('Iniciando Crypto Panda Game con Tutorial...');
 
