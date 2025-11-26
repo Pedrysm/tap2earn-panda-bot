@@ -19,8 +19,8 @@ class PandaGameScene extends Phaser.Scene {
         this.loadDefaultSkins();
         
         // Efectos básicos
-        this.load.image('coin', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTQiIGZpbGw9IiNGRkQ5M0QiIHN0cm9rZT0iI0ZGRjIzMCIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjx0ZXh0IHg9IjE2IiB5PSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjMDAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K');
-        this.load.image('sparkle', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjQiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuOCIvPgo8L3N2Zz4K');
+        this.load.image('coin', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/effects/coin.png');
+        this.load.image('sparkle', 'https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/effects/sparkle.png');
     }
 
     async create() {
