@@ -3,25 +3,327 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Crypto Panda</title>
+  <title>Crypto Panda - Tap2Earn Game</title>
+  
+  <!-- SDK de Telegram Web App -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Phaser -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  
+  <!-- CSS Personalizado -->
   <link rel="stylesheet" href="css/main.css" />
+  
+  <style>
+    /* Estilos para el Splash Screen */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #0a0a1a;
+      overflow: hidden;
+    }
+
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #0a0a1a;
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+    }
+
+    #splash-screen .background-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://vrbxeerfvoaukcopydpt.supabase.co/storage/v1/object/public/assets/ui/splash_screen.png');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.9;
+    }
+
+    #splash-screen .background-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(10,10,26,0.8) 0%, rgba(26,26,46,0.9) 100%);
+    }
+
+    #splash-screen .loading-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      color: white;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    #splash-screen h1 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #FFD700;
+      text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    }
+
+    .progress-container {
+      margin: 2rem 0;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 3px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #1a1a2e;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #8BC34A);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 6px;
+    }
+
+    .loading-text {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #AAAAAA;
+    }
+
+    .start-button {
+      background: #4CAF50;
+      width: 200px;
+      height: 60px;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .start-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      background: #45a049;
+    }
+
+    .start-button:active {
+      transform: scale(0.98);
+    }
+
+    /* Estados de visibilidad */
+    .screen {
+      width: 100%;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .visible {
+      display: flex;
+    }
+
+    /* Estilos para el juego principal */
+    #main-game {
+      background: #0b0b0f;
+      flex-direction: column;
+    }
+
+    .game-header {
+      background: rgba(26, 26, 46, 0.95);
+      padding: 10px;
+      border-bottom: 2px solid #4a4a8a;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.9rem;
+      color: white;
+    }
+
+    .stat-icon {
+      font-size: 1.1rem;
+    }
+
+    .game-navigation {
+      display: flex;
+      background: #1a1a2e;
+      border-bottom: 1px solid #2a2a4a;
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      flex: 1;
+      padding: 12px 8px;
+      border: none;
+      background: transparent;
+      color: #AAAAAA;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .nav-btn.active {
+      background: #4a4a8a;
+      color: white;
+    }
+
+    .nav-btn:hover {
+      background: #2a2a4a;
+    }
+
+    .game-content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .tab-pane {
+      display: none;
+      padding: 15px;
+      color: white;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    #panda-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .game-footer {
+      background: rgba(26, 26, 46, 0.95);
+      padding: 8px 15px;
+      border-top: 1px solid #2a2a4a;
+    }
+
+    .quick-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #AAAAAA;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .stats-bar {
+        gap: 10px;
+      }
+      
+      .stat {
+        font-size: 0.8rem;
+      }
+      
+      .nav-btn {
+        font-size: 0.75rem;
+        padding: 10px 5px;
+      }
+      
+      .quick-stats {
+        flex-direction: column;
+        gap: 5px;
+      }
+    }
+
+    /* Animación de carga */
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    .loading .loading-text {
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Mejoras visuales para las pestañas */
+    .tab-pane h2 {
+      color: #FFD700;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .tab-pane p {
+      text-align: center;
+      color: #CCCCCC;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Splash screen -->
-  <div id="splash-screen" class="screen active">
+  <!-- Splash Screen -->
+  <div id="splash-screen" class="screen visible">
     <div class="background-image"></div>
     <div class="background-overlay"></div>
     <div class="loading-content">
       <h1>🐼 Crypto Panda</h1>
-      <button id="start-button" class="start-button visible">START GAME</button>
+      
+      <!-- Contenedor de progreso -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+      
+      <div class="loading-text" id="loading-text">Cargando recursos...</div>
+      
+      <!-- Botón START GAME -->
+      <button id="start-button" class="start-button hidden">START GAME</button>
     </div>
   </div>
 
-  <!-- Juego principal -->
+  <!-- Juego Principal -->
   <div id="main-game" class="screen hidden">
-
-    <!-- HUD superior -->
+    <!-- HUD Superior -->
     <div class="game-header">
       <div class="stats-bar">
         <div class="stat"><span class="stat-icon">⚡</span> <span id="energy-text">100/100</span></div>
@@ -34,14 +336,14 @@
 
     <!-- Navegación -->
     <div class="game-navigation">
-      <button class="nav-btn active" data-tab="juego">Juego</button>
-      <button class="nav-btn" data-tab="skins">Skins</button>
-      <button class="nav-btn" data-tab="logros">Logros</button>
-      <button class="nav-btn" data-tab="ruleta">Ruleta</button>
-      <button class="nav-btn" data-tab="referidos">Referidos</button>
+      <button class="nav-btn active" data-tab="juego">🎮 Juego</button>
+      <button class="nav-btn" data-tab="skins">🎨 Skins</button>
+      <button class="nav-btn" data-tab="logros">🏆 Logros</button>
+      <button class="nav-btn" data-tab="ruleta">🎰 Ruleta</button>
+      <button class="nav-btn" data-tab="referidos">👥 Referidos</button>
     </div>
 
-    <!-- Contenido -->
+    <!-- Contenido Principal -->
     <div class="game-content">
       <!-- Pestaña: Juego -->
       <div class="tab-pane active" id="tab-juego">
@@ -51,45 +353,152 @@
       <!-- Pestaña: Skins -->
       <div class="tab-pane" id="tab-skins">
         <h2>🎨 Selección de Skins</h2>
-        <p>Aquí podrás cambiar el aspecto de tu panda.</p>
+        <p>Personaliza tu panda con skins especiales</p>
+        <div id="skins-grid" class="skins-grid">
+          <!-- Las skins se cargarán dinámicamente -->
+        </div>
       </div>
 
       <!-- Pestaña: Logros -->
       <div class="tab-pane" id="tab-logros">
-        <h2>🏆 Logros</h2>
-        <p>Desbloquea logros al avanzar en el juego.</p>
+        <h2>🏆 Logros y Misiones</h2>
+        <p>Completa desafíos para ganar recompensas</p>
+        <div id="achievements-list">
+          <!-- Los logros se cargarán dinámicamente -->
+        </div>
       </div>
 
       <!-- Pestaña: Ruleta -->
       <div class="tab-pane" id="tab-ruleta">
         <h2>🎰 Ruleta Diaria</h2>
-        <p>Gira la ruleta y gana premios cada día.</p>
+        <p>Gira la ruleta cada día para ganar premios sorpresa</p>
+        <div id="roulette-container">
+          <!-- La ruleta se cargará dinámicamente -->
+        </div>
       </div>
 
       <!-- Pestaña: Referidos -->
       <div class="tab-pane" id="tab-referidos">
         <h2>👥 Invita y Gana</h2>
-        <p>Comparte tu código y gana recompensas por cada amigo que se una.</p>
+        <p>Comparte tu código de referido y gana recompensas por cada amigo que se una</p>
+        <div id="referral-section">
+          <!-- Sección de referidos -->
+        </div>
       </div>
     </div>
 
     <!-- Footer -->
     <div class="game-footer">
       <div class="quick-stats">
-        <span>Usuario: <strong id="username">Demo</strong></span>
-        <span>Skin: <strong id="skin-name">Clásico</strong></span>
-        <span>Gemas: <strong id="gems-count">0</strong></span>
+        <span>Usuario: <strong id="username">Cargando...</strong></span>
+        <span>Skin: <strong id="skin-name">Básico</strong></span>
+        <span>💎 <strong id="gems-count">0</strong></span>
       </div>
     </div>
-
   </div>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-  <script src="js/scenes/PandaGameScene.js"></script>
-  <script src="js/scenes/TutorialScene.js"></script>
+  <!-- Scripts en Orden Correcto -->
+  <script src="js/core/SupabaseService.js"></script>
+  <script src="js/core/GameManager.js"></script>
   <script src="js/phaser-game.js"></script>
   <script src="js/main.js"></script>
+
+  <script>
+    // Inicialización mejorada del Splash Screen
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🚀 Iniciando Crypto Panda...');
+      
+      const splashScreen = document.getElementById('splash-screen');
+      const startButton = document.getElementById('start-button');
+      const progressFill = document.getElementById('progress-fill');
+      const loadingText = document.getElementById('loading-text');
+      const mainGame = document.getElementById('main-game');
+
+      // Simular progreso de carga
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += Math.random() * 10;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(progressInterval);
+          
+          // Mostrar botón START cuando la carga termine
+          loadingText.textContent = '¡Listo para jugar!';
+          startButton.classList.remove('hidden');
+          splashScreen.classList.add('loaded');
+        }
+        
+        progressFill.style.width = progress + '%';
+        
+        // Actualizar texto según progreso
+        if (progress < 30) {
+          loadingText.textContent = 'Cargando recursos...';
+        } else if (progress < 60) {
+          loadingText.textContent = 'Inicializando juego...';
+        } else if (progress < 90) {
+          loadingText.textContent = 'Preparando experiencia...';
+        }
+      }, 200);
+
+      // Manejar clic en START GAME
+      startButton.addEventListener('click', function() {
+        console.log('🎮 Iniciando juego...');
+        
+        // Animación de salida del splash
+        splashScreen.style.opacity = '0';
+        
+        setTimeout(() => {
+          splashScreen.classList.add('hidden');
+          splashScreen.classList.remove('visible');
+          mainGame.classList.remove('hidden');
+          mainGame.classList.add('visible');
+          
+          // Inicializar servicios y juego
+          if (typeof initGameServices === 'function') {
+            initGameServices();
+          }
+          
+          // Iniciar Phaser después de un breve delay
+          setTimeout(() => {
+            if (typeof initPhaserGame === 'function') {
+              window.gameInstance = initPhaserGame();
+              console.log('✅ Juego Phaser iniciado');
+            } else {
+              console.error('❌ initPhaserGame no disponible');
+            }
+          }, 500);
+          
+        }, 500);
+      });
+
+      // Sistema de pestañas
+      const navButtons = document.querySelectorAll('.nav-btn');
+      const tabPanes = document.querySelectorAll('.tab-pane');
+
+      navButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const targetTab = this.getAttribute('data-tab');
+          
+          // Remover clase active de todos los botones y pestañas
+          navButtons.forEach(btn => btn.classList.remove('active'));
+          tabPanes.forEach(pane => pane.classList.remove('active'));
+          
+          // Agregar clase active al botón y pestaña seleccionados
+          this.classList.add('active');
+          document.getElementById(`tab-${targetTab}`).classList.add('active');
+        });
+      });
+
+      // Verificar si estamos en Telegram Web App
+      if (window.Telegram && window.Telegram.WebApp) {
+        console.log('✅ Detectado Telegram Web App');
+        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.ready();
+      } else {
+        console.log('🌐 Modo navegador estándar');
+      }
+    });
+  </script>
 
 </body>
 </html>
